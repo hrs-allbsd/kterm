@@ -1541,6 +1541,10 @@ register TScreen *screen;
 TekBackground(screen)
 register TScreen *screen;
 {
+#ifdef WALLPAPER
+	extern int BackgroundPixmapIsOn;
+	if(!BackgroundPixmapIsOn)
+#endif /* WALLPAPER */
 	if(TWindow(screen))
 		XSetWindowBackground(screen->display, TWindow(screen), 
 		 screen->Tbackground);
@@ -1569,7 +1573,11 @@ TCursorToggle(toggle)
 
 	if (toggle == TOGGLE) {
 	   if (screen->select || screen->always_highlight) 
+#ifdef WALLPAPER
+	       FillRectangle(screen->display, TWindow(screen),
+#else /* WALLPAPER */
 	       XFillRectangle(screen->display, TWindow(screen),
+#endif /* WALLPAPER */
 			      screen->TcursorGC, x, y,
 			      cellwidth, cellheight);
 	   else { /* fix to use different GC! */

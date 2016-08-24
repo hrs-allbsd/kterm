@@ -2451,7 +2451,12 @@ WriteText(screen, str, len, flags)
 			FlushScroll(screen);
 	cx = CursorX(screen, screen->cur_col);
 	cy = CursorY(screen, screen->cur_row)+screen->fnt_norm->ascent;
+#ifdef WALLPAPER
+ 	DrawImageString(screen, screen->fnt_norm->ascent, reverse,
+			screen->display, TextWindow(screen), currentGC,
+#else /* WALLPAPER */
  	XDrawImageString(screen->display, TextWindow(screen), currentGC,
+#endif /* WALLPAPER */
 			cx, cy, str, len);
 
 	if((fgs & BOLD) && screen->enbolden) 
@@ -3884,6 +3889,9 @@ ShowCursor()
 	GC	currentGC;
 #endif /* !KTERM */
 	Boolean	in_selection;
+#ifdef WALLPAPER
+	int reverse;
+#endif /* WALLPAPER */
 
 	if (eventMode != NORMAL) return;
 
@@ -3933,6 +3941,9 @@ ShowCursor()
 		if (( (flags & INVERSE) && !in_selection) ||
 		    (!(flags & INVERSE) &&  in_selection)){
 		    /* text is reverse video */
+#ifdef WALLPAPER
+		    reverse = 0;
+#endif /* WALLPAPER */
 		    if (screen->cursorGC) {
 			currentGC = screen->cursorGC;
 		    } else {
@@ -3943,6 +3954,9 @@ ShowCursor()
 			}
 		    }
 		} else { /* normal video */
+#ifdef WALLPAPER
+		    reverse = 1;
+#endif /* WALLPAPER */
 		    if (screen->reversecursorGC) {
 			currentGC = screen->reversecursorGC;
 		    } else {
@@ -3957,8 +3971,14 @@ ShowCursor()
 		if (( (flags & INVERSE) && !in_selection) ||
 		    (!(flags & INVERSE) &&  in_selection)) {
 		    /* text is reverse video */
+#ifdef WALLPAPER
+			reverse = 1;
+#endif /* WALLPAPER */
 			currentGC = screen->reverseGC;
 		} else { /* normal video */
+#ifdef WALLPAPER
+			reverse = 0;
+#endif /* WALLPAPER */
 			currentGC = screen->normalGC;
 		}
 	    
@@ -3967,7 +3987,12 @@ ShowCursor()
 	x = CursorX (screen, screen->cur_col);
 	y = CursorY(screen, screen->cur_row) + 
 	  screen->fnt_norm->ascent;
+#ifdef WALLPAPER
+	DrawImageString(screen, screen->fnt_norm->ascent, reverse,
+			screen->display, TextWindow(screen), currentGC,
+#else /* WALLPAPER */
 	XDrawImageString(screen->display, TextWindow(screen), currentGC,
+#endif /* WALLPAPER */
 		x, y, (char *) &c, 1);
 
 	if((flags & BOLD) && screen->enbolden) /* no bold font */
@@ -4010,6 +4035,9 @@ HideCursor()
 	char c;
 #endif /* !KTERM */
 	Boolean	in_selection;
+#ifdef WALLPAPER
+	int reverse;
+#endif /* WALLPAPER */
 
 #ifdef STATUSLINE
 	Boolean in_status = (screen->cursor_row > screen->max_row);
@@ -4052,12 +4080,18 @@ HideCursor()
 #else /* !KTERM */
 	if (( (flags & INVERSE) && !in_selection) ||
 	    (!(flags & INVERSE) &&  in_selection)) {
+#ifdef WALLPAPER
+		reverse = 1;
+#endif /* WALLPAPER */
 		if(flags & BOLD) {
 			currentGC = screen->reverseboldGC;
 		} else {
 			currentGC = screen->reverseGC;
 		}
 	} else {
+#ifdef WALLPAPER
+		reverse = 0;
+#endif /* WALLPAPER */
 		if(flags & BOLD) {
 			currentGC = screen->normalboldGC;
 		} else {
@@ -4075,7 +4109,12 @@ HideCursor()
 	 screen->border;
 # endif /* !STATUSLINE */
 	y = y+screen->fnt_norm->ascent;
+#ifdef WALLPAPER
+	DrawImageString(screen, screen->fnt_norm->ascent, reverse,
+			screen->display, TextWindow(screen), currentGC,
+#else /* WALLPAPER */
 	XDrawImageString(screen->display, TextWindow(screen), currentGC,
+#endif /* WALLPAPER */
 		x, y, &c, 1);
 	if((flags & BOLD) && screen->enbolden)
 		XDrawString(screen->display, TextWindow(screen), currentGC,
@@ -4257,7 +4296,11 @@ EraseStatus()
 		j = screen->max_col + 1);
 	bzero(screen->buf[i + 1], j) ;
 # endif /* !KTERM */
+#ifdef WALLPAPER
+	FillRectangle(screen->display, TextWindow(screen),
+#else /* WALLPAPER */
 	XFillRectangle(screen->display, TextWindow(screen),
+#endif /* WALLPAPER */
 		screen->reversestatus ? screen->normalGC : screen->reverseGC,
 		screen->border - 1 + screen->scrollbar,
 		Height(screen) + screen->border * 2 + 1,

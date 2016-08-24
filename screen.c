@@ -556,6 +556,14 @@ Boolean force;			/* ... leading/trailing spaces */
 	int scrollamt = screen->scroll_amt;
 	int max = screen->max_row;
 
+#ifdef WALLPAPER
+	{
+	    extern int BackgroundPixmapIsOn;
+	    if (BackgroundPixmapIsOn){
+		force = True;
+	    }
+	}
+#endif /* WALLPAPER */
 #ifdef STATUSLINE
 	if(screen->cursor_col >= leftcol
 	&& screen->cursor_col <= (leftcol + ncols - 1)
@@ -587,6 +595,9 @@ Boolean force;			/* ... leading/trailing spaces */
 	   GC gc;
 #endif /* !KTERM */
 	   Boolean hilite;	
+#ifdef WALLPAPER
+	   int reverse;
+#endif /* WALLPAPER */
 
 #ifdef STATUSLINE
 	   if (row > screen->max_row) { /* implies (row > screen->bot_marg) */
@@ -606,7 +617,11 @@ Boolean force;			/* ... leading/trailing spaces */
 		}
 		if (leftcol + ncols - 1 >= screen->max_col)
 		    width += screen->border;
+# ifdef WALLPAPER
+		FillRectangle(screen->display, TextWindow(screen),
+# else /* WALLPAPER */
 		XFillRectangle(screen->display, TextWindow(screen),
+# endif /* WALLPAPER */
 		    screen->reversestatus ? screen->normalGC : screen->reverseGC,
 		    left, Height(screen) + screen->border * 2,
 		    width, screen->statusheight);
@@ -691,16 +706,24 @@ Boolean force;			/* ... leading/trailing spaces */
 # ifdef STATUSLINE
 	   if (((!hilite && (flags & INVERSE) != 0) ||
 	        (hilite && (flags & INVERSE) == 0))
-		^ (row > screen->max_row && screen->reversestatus))
+		^ (row > screen->max_row && screen->reversestatus)) {
 # else /* !STATUSLINE */
 	   if ( (!hilite && (flags & INVERSE) != 0) ||
-	        (hilite && (flags & INVERSE) == 0) )
+	        (hilite && (flags & INVERSE) == 0) ) {
 # endif /* !STATUSLINE */
+# ifdef WALLPAPER
+	       reverse = 1;
+# endif /* WALLPAPER */
 	       if (flags & BOLD) gc = screen->reverseboldGC;
 	       else gc = screen->reverseGC;
-	   else 
+	   }
+	   else  {
+# ifdef WALLPAPER
+	       reverse = 0;
+# endif /* WALLPAPER */
 	       if (flags & BOLD) gc = screen->normalboldGC;
 	       else gc = screen->normalGC;
+	   }
 
 	   x = CursorX(screen, col);
 #endif /* !KTERM */
@@ -714,7 +737,12 @@ Boolean force;			/* ... leading/trailing spaces */
 		   ScreenDraw(screen, row + topline, lastind, col, flags, False);
 #else /* !KTERM */
 		if (attrs[col] != flags) {
+#ifdef WALLPAPER
+		   DrawImageString(screen, /*0*/screen->max_ascent, reverse,
+				   screen->display, TextWindow(screen), 
+#else /* WALLPAPER */
 		   XDrawImageString(screen->display, TextWindow(screen), 
+#endif /* WALLPAPER */
 		        	gc, x, y, (char *) &chars[lastind], n = col - lastind);
 		   if((flags & BOLD) && screen->enbolden)
 		 	XDrawString(screen->display, TextWindow(screen), 
@@ -769,14 +797,27 @@ Boolean force;			/* ... leading/trailing spaces */
 		^ (row > screen->max_row && screen->reversestatus))
 # else /* !STATUSLINE */
 	   if ( (!hilite && (flags & INVERSE) != 0) ||
-	        (hilite && (flags & INVERSE) == 0) )
+	        (hilite && (flags & INVERSE) == 0) ) {
 # endif /* !STATUSLINE */
+# ifdef WALLPAPER
+	       reverse = 1;
+# endif /* WALLPAPER */
 	       if (flags & BOLD) gc = screen->reverseboldGC;
 	       else gc = screen->reverseGC;
-	   else 
+	   }
+	   else {
+# ifdef WALLPAPER
+	       reverse = 0;
+# endif /* WALLPAPER */
 	       if (flags & BOLD) gc = screen->normalboldGC;
 	       else gc = screen->normalGC;
+	   }
+#ifdef WALLPAPER
+	   DrawImageString(screen, /*0*/screen->max_ascent, reverse,
+			   screen->display, TextWindow(screen), gc, 
+#else /* WALLPAPER */
 	   XDrawImageString(screen->display, TextWindow(screen), gc, 
+#endif /* WALLPAPER */
 	         x, y, (char *) &chars[lastind], n = col - lastind);
 	   if((flags & BOLD) && screen->enbolden)
 		XDrawString(screen->display, TextWindow(screen), gc,
@@ -1147,6 +1188,9 @@ Boolean	oncursor;
 	char	drawbuf[256], *dbuf = drawbuf;
 	int	n, c;
 	int	x, y;
+# ifdef WALLPAPER
+	int	reverse;
+# endif /* WALLPAPER */
 
 	x = CursorX(screen, col);
 	y = CursorY(screen, row);
@@ -1193,6 +1237,9 @@ Boolean	oncursor;
 	    LoadOneFont(screen, True, screen->menu_font_number, fnum, True);
 	
 	if (flags & INVERSE) {
+# ifdef WALLPAPER
+		reverse = 1;
+# endif /* WALLPAPER */
 		if (hilitecursor && screen->reversecursorGC)
 			gc = screen->reversecursorGC;
 		else if (flags & BOLD)
@@ -1200,6 +1247,9 @@ Boolean	oncursor;
 		else
 			gc = screen->reverseGC;
 	} else {
+# ifdef WALLPAPER
+		reverse = 0;
+# endif /* WALLPAPER */
 		if (hilitecursor && screen->cursorGC)
 			gc = screen->cursorGC;
 		else if (flags & BOLD)
@@ -1243,7 +1293,12 @@ Boolean	oncursor;
 
 #ifdef KTERM_MBCS
 		if (gset & MBCS) {
+#ifdef WALLPAPER
+			DrawImageString16(screen, screen->max_ascent, reverse,
+					  screen->display, TextWindow(screen),
+#else /* WALLPAPER */
 			XDrawImageString16(screen->display, TextWindow(screen),
+#endif /* WALLPAPER */
 				gc, x, Y, dbuf2, n);
 			if (flags & BOLD && screen->normalboldGC == screen->normalGC)
 			    XDrawString16(screen->display, TextWindow(screen),
@@ -1251,7 +1306,12 @@ Boolean	oncursor;
 		} else
 #endif /* KTERM_MBCS */
 		{
+#ifdef WALLPAPER
+			DrawImageString(screen, /*0*/screen->max_ascent, reverse,
+					screen->display, TextWindow(screen),
+#else /* WALLPAPER */
 			XDrawImageString(screen->display, TextWindow(screen),
+#endif /* WALLPAPER */
 				gc, x, Y, dbuf, n);
 			if (flags & BOLD && screen->normalboldGC == screen->normalGC)
 			    XDrawString(screen->display, TextWindow(screen),

@@ -41,6 +41,9 @@
 #include "error.h"
 #include "menu.h"
 
+#ifdef WALLPAPER
+extern int BackgroundPixmapIsOn;
+#endif /* WALLPAPER */
 /* Event handlers */
 
 static void ScrollTextTo();
@@ -156,6 +159,11 @@ static void ResizeScreen(xw, min_width, min_height )
 	     geomreqresult = XtMakeResizeRequest ((Widget)xw, repWidth,
 						  repHeight, NULL, NULL);
 	}
+
+#ifdef WALLPAPER
+	FullWidth(screen) = repWidth;
+	FullHeight(screen) = repHeight;
+#endif /* WALLPAPER */
 
 #ifndef nothack
 	XSetWMNormalHints(screen->display, XtWindow(XtParent(xw)), &sizehints);
@@ -298,11 +306,23 @@ WindowScroll(screen, top)
 		refreshtop = scrollheight;
 	}
 	x = screen->scrollbar +	screen->border;
+#ifdef WALLPAPER
+	if (BackgroundPixmapIsOn){
+	  screen->topline = top;
+	  ScrollSelection(screen, i);
+	}
+#endif /* WALLPAPER */
 	scrolling_copy_area(screen, scrolltop, scrollheight, -i);
+#ifdef WALLPAPER
+	if (!BackgroundPixmapIsOn){
+#endif /* WALLPAPER */
 	screen->topline = top;
 
 	ScrollSelection(screen, i);
 
+#ifdef WALLPAPER
+        }
+#endif /* WALLPAPER */
 	XClearArea(
 	    screen->display,
 	    TextWindow(screen), 

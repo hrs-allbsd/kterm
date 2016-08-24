@@ -621,6 +621,9 @@ static struct _resource {
 #ifdef KEEPALIVE
     Boolean keepalive;
 #endif
+#ifdef WALLPAPER
+    char *wallpaper;
+#endif /* WALLPAPER */
 } resource;
 
 /* used by VT (charproc.c) */
@@ -660,6 +663,10 @@ static XtResource application_resources[] = {
     {"keepAlive", "KeepAlive", XtRBoolean, sizeof (Boolean),
 	offset(keepalive), XtRString, "false"},
 #endif /* KEEPALIVE */
+#ifdef WALLPAPER
+    {"wallPaper", "WallPaper", XtRString, sizeof (char *),
+        offset(wallpaper), XtRString, (caddr_t)NULL},
+#endif /* WALLPAPER */
 };
 #undef offset
 
@@ -781,6 +788,9 @@ static XrmOptionDescRec optionDescList[] = {
 {"+vb",		"*visualBell",	XrmoptionNoArg,		(caddr_t) "off"},
 {"-wf",		"*waitForMap",	XrmoptionNoArg,		(caddr_t) "on"},
 {"+wf",		"*waitForMap",	XrmoptionNoArg,		(caddr_t) "off"},
+#ifdef WALLPAPER
+{"-wp",		"*wallPaper",	XrmoptionSepArg,	(caddr_t) NULL},
+#endif /* WALLPAPER */
 /* bogus old compatibility stuff for which there are
    standard XtAppInitialize options now */
 #ifndef KTERM_NOTEK
@@ -891,6 +901,9 @@ static struct _options {
 #endif
 { "-/+vb",                 "turn on/off visual bell" },
 { "-/+wf",                 "turn on/off wait for map before command exec" },
+#ifdef WALLPAPER
+{ "-wp filename.xpm",      "wallpaper image filename" },
+#endif /* WALLPAPER */
 { "-e command args ...",   "command to execute" },
 { "%geom",                 "Tek window geometry" },
 { "#geom",                 "icon window geometry" },
@@ -1027,6 +1040,9 @@ Version()
 # ifdef KEEPALIVE
     printopt(" [KEEPALIVE]");
 # endif
+# ifdef WALLPAPER
+    printopt(" [WALLPAPER]");
+# endif
     fprintf (stderr, "\n");
 
     exit (0);
@@ -1097,6 +1113,85 @@ Atom wm_delete_window;
 extern fd_set Select_mask;
 extern fd_set X_mask;
 extern fd_set pty_mask;
+
+#ifdef WALLPAPER
+
+#include <X11/xpm.h>
+
+Pixmap BackgroundPixmap = NULL;
+Pixmap BackgroundPixmap_shape = NULL;
+int BackgroundPixmapIsOn = 0;
+static XpmAttributes imageattr;
+
+void
+FillRectangle(display, d, gc, x, y, width, height)
+    Display *display;
+    Drawable d;
+    GC gc;
+    int x;
+    int y;
+    unsigned int width;
+    unsigned int height;
+{
+    int sx, sy, dx, dy, w, h;
+
+    if(BackgroundPixmapIsOn){
+      XClearArea(display, d, x, y, width, height, 0);
+    }else{
+      XFillRectangle(display, d, gc, x, y, width, height);
+    }
+}
+
+void
+DrawImageString(screen, ascent, reverse, display, d, gc, x, y, string, length)
+    TScreen *screen;
+    int ascent;
+    int reverse;
+    Display *display;
+    Drawable d;
+    GC gc;
+    int x;
+    int y;
+    char *string;
+    int length;
+{
+    if (!reverse && (BackgroundPixmapIsOn)){
+	FillRectangle(display, d, gc, x, y - ascent, FontWidth(screen) * length, FontHeight(screen));
+	XDrawString(display, d, gc, x, y, string, length);
+    }
+    else{
+	XDrawImageString(display, d, gc, x, y, string, length);
+    }
+}
+
+void
+DrawImageString16(screen, ascent, reverse, display, d, gc, x, y, string, length)
+    TScreen *screen;
+    int ascent;
+    int reverse;
+    Display *display;
+    Drawable d;
+    GC gc;
+    int x;
+    int y;
+    XChar2b *string;
+    int length;
+{
+    int i, len = 0;
+
+    for (i = 0; i < length; i++){
+	len += (string[i].byte1 == 0x00) ? 1 : 2;
+    }
+    if (!reverse && (BackgroundPixmapIsOn)){
+	FillRectangle(display, d, gc, x, y - ascent, FontWidth(screen) * len, FontHeight(screen));
+	XDrawString16(display, d, gc, x, y, string, length);
+    }
+    else{
+	XDrawImageString16(display, d, gc, x, y, string, length);
+    }
+}
+
+#endif /* WALLPAPER */
 
 main (argc, argv)
 int argc;
@@ -1690,6 +1785,41 @@ char **argv;
 #endif	/* DEBUG */
 	XSetErrorHandler(xerror);
 	XSetIOErrorHandler(xioerror);
+#ifdef WALLPAPER
+	if (resource.wallpaper){
+	    int result;
+
+	    imageattr.valuemask = XpmColormap;
+	    imageattr.x_hotspot = 0;
+	    imageattr.y_hotspot = 0;
+	    imageattr.depth = DefaultDepth(XtDisplay(toplevel), 0);
+	    imageattr.colormap = DefaultColormap(XtDisplay(toplevel), 0);
+
+	    if ((result =  XpmReadFileToPixmap(XtDisplay(toplevel),
+					       XtWindow(toplevel),
+					       resource.wallpaper,
+					       &BackgroundPixmap,
+					       &BackgroundPixmap_shape,
+					       &imageattr)) != XpmSuccess){
+		fprintf(stderr, "XpmReadFileToImage(\"%s\") : %s\n",
+			resource.wallpaper, XpmGetErrorString(result));
+	    }
+	    else{
+	      XSetWindowBackgroundPixmap(XtDisplay(toplevel),
+					 XtWindow(toplevel),
+					 BackgroundPixmap);
+	      if(BackgroundPixmap_shape != NULL)
+		XFreePixmap(XtDisplay(toplevel),
+			    BackgroundPixmap_shape);
+	      XpmFreeAttributes(&imageattr);
+	      XSetWindowBackgroundPixmap(XtDisplay(term),
+					 XtWindow(term),
+					 ParentRelative);
+	      XFreePixmap(XtDisplay(toplevel), BackgroundPixmap);
+	      BackgroundPixmapIsOn = 1;
+	    }
+	}
+#endif /* WALLPAPER */
 	for( ; ; ) {
 #ifndef KTERM_NOTEK
 		if(screen->TekEmu) {

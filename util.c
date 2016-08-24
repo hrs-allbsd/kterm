@@ -42,6 +42,10 @@ static void vertical_copy_area();
 static int fnum = F_ISO8859_1; /* refered by *GC in many functions */
 #endif /* KTERM */
 
+#ifdef WALLPAPER
+extern int BackgroundPixmapIsOn;
+#endif /* WALLPAPER */
+
 /*
  * These routines are used for the jump scroll feature
  */
@@ -107,8 +111,15 @@ register TScreen *screen;
 		if((i = screen->top_marg + refreshheight - 1 - bot) > 0)
 			refreshheight -= i;
 	}
+#ifdef WALLPAPER
+      if (BackgroundPixmapIsOn)
+	ScrollSelection(screen, -(screen->scroll_amt));
+#endif /* WALLPAPER */
 	scrolling_copy_area(screen, scrolltop+screen->scroll_amt,
 			    scrollheight, screen->scroll_amt);
+#ifdef WALLPAPER
+      if (!BackgroundPixmapIsOn)
+#endif /* WALLPAPER */
 	ScrollSelection(screen, -(screen->scroll_amt));
 	screen->scroll_amt = 0;
 	screen->refresh_amt = 0;
@@ -346,6 +357,9 @@ register int n;
 	register int refreshheight;
 	register int scrolltop;
 	register int scrollheight;
+#ifdef WALLPAPER
+	int vcopy = 0;
+#endif /* WALLPAPER */
 
 	if (screen->cur_row < screen->top_marg ||
 	 screen->cur_row > screen->bot_marg)
@@ -376,6 +390,11 @@ register int n;
 		scrollheight -= i;
 	if((i = screen->cur_row + refreshheight - 1 - bot) > 0)
 		refreshheight -= i;
+#ifdef WALLPAPER
+      if (BackgroundPixmapIsOn)
+	vcopy = 1;
+      else
+#endif /* WALLPAPER */
 	vertical_copy_area(screen, scrolltop-n, scrollheight, -n);
 	if(refreshheight > 0)
 		XClearArea (
@@ -390,6 +409,10 @@ register int n;
 	/* adjust screen->buf */
 	ScrnInsertLine(screen->buf, screen->bot_marg, screen->cur_row, n,
 			screen->max_col + 1);
+#ifdef WALLPAPER
+      if (vcopy)
+	ScrnRefresh(screen, scrolltop, 0, scrollheight, screen->max_col + 1, True);
+#endif /* WALLPAPER */
 }
 
 /*
@@ -407,6 +430,9 @@ register int n;
 	register int refreshheight;
 	register int scrolltop;
 	register int scrollheight;
+#ifdef WALLPAPER
+	int vcopy = 0;
+#endif /* WALLPAPER */
 
 	if (screen->cur_row < screen->top_marg ||
 	 screen->cur_row > screen->bot_marg)
@@ -453,6 +479,11 @@ register int n;
 			}
 		}
 	}
+#ifdef WALLPAPER
+      if (BackgroundPixmapIsOn)
+	vcopy = 1;
+      else
+#endif /* WALLPAPER */
 	vertical_copy_area(screen, scrolltop+n, scrollheight, n);
 	if(refreshheight > 0)
 		XClearArea (
@@ -471,6 +502,10 @@ register int n;
 	else
 		ScrnDeleteLine(screen->buf, screen->bot_marg, screen->cur_row,
 		 n, screen->max_col + 1);
+#ifdef WALLPAPER
+      if (vcopy)
+	ScrnRefresh(screen, scrolltop, 0, scrollheight, screen->max_col + 1, True);
+#endif /* WALLPAPER */
 }
 
 /*
@@ -481,6 +516,9 @@ InsertChar (screen, n)
     register int n;
 {
         register int cx, cy;
+#ifdef WALLPAPER
+	int hcopy = 0;
+#endif /* WALLPAPER */
 
 	if(screen->cursor_state)
 		HideCursor();
@@ -504,6 +542,11 @@ InsertChar (screen, n)
 		 */
 		if (non_blank_line (screen->buf, screen->cur_row, 
 				    screen->cur_col, screen->max_col + 1))
+#ifdef WALLPAPER
+		  if (BackgroundPixmapIsOn)
+		    hcopy = 1;
+		  else
+#endif /* WALLPAPER */
 		    horizontal_copy_area(screen, screen->cur_col,
 					 screen->max_col+1 - (screen->cur_col+n),
 					 n);
@@ -511,7 +554,11 @@ InsertChar (screen, n)
 		cx = CursorX (screen, screen->cur_col);
 		cy = CursorY (screen, screen->cur_row);
 
+#ifdef WALLPAPER
+		FillRectangle(
+#else /* WALLPAPER */
 		XFillRectangle(
+#endif /* WALLPAPER */
 		    screen->display,
 		    TextWindow(screen), 
 #ifdef STATUSLINE
@@ -526,6 +573,12 @@ InsertChar (screen, n)
 	/* adjust screen->buf */
 	ScrnInsertChar(screen->buf, screen->cur_row, screen->cur_col, n,
 			screen->max_col + 1);
+#ifdef WALLPAPER
+	if (hcopy){
+	    ScrnRefresh(screen, screen->cur_row, screen->cur_col, 1,
+			screen->max_col+1 - screen->cur_col, True);
+	}
+#endif /* WALLPAPER */
 }
 
 /*
@@ -536,6 +589,9 @@ DeleteChar (screen, n)
     register int	n;
 {
 	register int width;
+#ifdef WALLPAPER
+	int hcopy = 0;
+#endif /* WALLPAPER */
 
 	if(screen->cursor_state)
 		HideCursor();
@@ -559,11 +615,20 @@ DeleteChar (screen, n)
 		if(screen->scroll_amt)
 			FlushScroll(screen);
 	
+#ifdef WALLPAPER
+	      if (BackgroundPixmapIsOn)
+		hcopy = 1;
+	      else
+#endif /* WALLPAPER */
 		horizontal_copy_area(screen, screen->cur_col+n,
 				     screen->max_col+1 - (screen->cur_col+n),
 				     -n);
 	
+#ifdef WALLPAPER
+		FillRectangle
+#else /* WALLPAPER */
 		XFillRectangle
+#endif /* WALLPAPER */
 		    (screen->display, TextWindow(screen),
 #ifdef STATUSLINE
 		     screen->instatus && screen->reversestatus ?
@@ -579,6 +644,12 @@ DeleteChar (screen, n)
 	/* adjust screen->buf */
 	ScrnDeleteChar (screen->buf, screen->cur_row, screen->cur_col, n,
 			screen->max_col + 1);
+#ifdef WALLPAPER	
+	if (hcopy){
+	    ScrnRefresh(screen, screen->cur_row, screen->cur_col, 1,
+			screen->max_col+1 - screen->cur_col, True);
+	}
+#endif WALLPAPER	
 
 }
 
@@ -652,7 +723,11 @@ register TScreen *screen;
 	    if(!AddToRefresh(screen)) {
 	if(screen->scroll_amt)
 		FlushScroll(screen);
+#ifdef WALLPAPER
+		FillRectangle(screen->display, TextWindow(screen),
+#else /* WALLPAPER */
 		XFillRectangle(screen->display, TextWindow(screen),
+#endif /* WALLPAPER */
 #ifdef STATUSLINE
 		  screen->instatus && screen->reversestatus ?
 		  screen->normalGC :
@@ -707,7 +782,11 @@ ClearLeft (screen)
 	    if(!AddToRefresh(screen)) {
 		if(screen->scroll_amt)
 			FlushScroll(screen);
+#ifdef WALLPAPER
+		FillRectangle (screen->display, TextWindow(screen),
+#else /* WALLPAPER */
 		XFillRectangle (screen->display, TextWindow(screen),
+#endif /* WALLPAPER */
 #ifdef STATUSLINE
 		     screen->instatus && screen->reversestatus ?
 		     screen->normalGC :
@@ -758,7 +837,11 @@ register TScreen *screen;
 	    if(!AddToRefresh(screen)) {
 		if(screen->scroll_amt)
 			FlushScroll(screen);
+#ifdef WALLPAPER
+		FillRectangle (screen->display, TextWindow(screen), 
+#else /* WALLPAPER */
 		XFillRectangle (screen->display, TextWindow(screen), 
+#endif /* WALLPAPER */
 #ifdef STATUSLINE
 		     screen->instatus && screen->reversestatus ?
 		     screen->normalGC :
@@ -894,12 +977,26 @@ horizontal_copy_area(screen, firstchar, nchars, amount)
     int nchars;
     int amount;			/* number of characters to move right */
 {
+#ifdef WALLPAPER
+  if (BackgroundPixmapIsOn){
+    if (amount >= 0){
+	ScrnRefresh(screen, screen->cur_row, firstchar, 1, nchars + amount, True);
+    }
+    else{
+	ScrnRefresh(screen, screen->cur_row, firstchar + amount, 1, nchars - amount, True);
+    }
+  }
+  else{
+#endif /* WALLPAPER */
     int src_x = CursorX(screen, firstchar);
     int src_y = CursorY(screen, screen->cur_row);
 
     copy_area(screen, src_x, src_y,
 	      (unsigned)nchars*FontWidth(screen), FontHeight(screen),
 	      src_x + amount*FontWidth(screen), src_y);
+#ifdef WALLPAPER
+  }
+#endif /* WALLPAPER */
 }
 
 /*
@@ -913,12 +1010,29 @@ vertical_copy_area(screen, firstline, nlines, amount)
     int amount;			/* number of lines to move up (neg=down) */
 {
     if(nlines > 0) {
+#ifdef WALLPAPER
+      if (BackgroundPixmapIsOn){
+	int amt = screen->scroll_amt;
+	screen->scroll_amt = 0;
+	if (amount >= 0){
+	    ScrnRefresh(screen, firstline - amount, 0, nlines, screen->max_col + 1, True);
+	}
+	else{
+	    ScrnRefresh(screen, firstline - amount, 0, nlines, screen->max_col + 1, True);
+	}
+	screen->scroll_amt = amt;
+      }
+      else{
+#endif /* WALLPAPER */
 	int src_x = screen->border + screen->scrollbar;
 	int src_y = firstline * FontHeight(screen) + screen->border;
 
 	copy_area(screen, src_x, src_y,
 		  (unsigned)Width(screen), nlines*FontHeight(screen),
 		  src_x, src_y - amount*FontHeight(screen));
+#ifdef WALLPAPER
+      }
+#endif /* WALLPAPER */
     }
 }
 
@@ -993,7 +1107,30 @@ handle_translated_exposure (screen, rect_x, rect_y, rect_width, rect_height)
 {
 	register int toprow, leftcol, nrows, ncols;
 	extern Bool waiting_for_initial_map;
+#ifdef WALLPAPER
+	if (BackgroundPixmapIsOn){
+	    Window tw = TextWindow (screen);
+	    int width = FullWidth(screen);
+	    int height = FullHeight(screen);
 
+	    XClearArea (screen->display, tw,
+			screen->scrollbar, 0,	   /* left edge */
+			screen->border, height,	   /* from top to bottom */
+			False);
+	    XClearArea (screen->display, tw,
+			0, 0,			   /* top */
+			width, screen->border,	   /* all across the top */
+			False);
+	    XClearArea (screen->display, tw,
+			width - screen->border, 0,  /* right edge */
+			screen->border, height,	   /* from top to bottom */
+			False);
+	    XClearArea (screen->display, tw,
+			0, height - screen->border, /* bottom */
+			width, screen->border,	   /* all across the bottom */
+			False);
+	}
+#endif /* WALLPAPER */
 	toprow = (rect_y - screen->border) / FontHeight(screen);
 	if(toprow < 0)
 		toprow = 0;
@@ -1113,6 +1250,9 @@ ReverseVideo (termw)
 	if(screen->scrollWidget)
 		ScrollBarReverseVideo(screen->scrollWidget);
 
+#ifdef WALLPAPER
+        if(!BackgroundPixmapIsOn)
+#endif /* WALLPAPER */
 	XSetWindowBackground(screen->display, TextWindow(screen), termw->core.background_pixel);
 #ifndef KTERM_NOTEK
 	if(tek) {
@@ -1180,7 +1320,11 @@ register TScreen *screen;
 		    if(!AddToRefresh(screen)) {
 			if(screen->scroll_amt)
 				FlushScroll(screen);
+#ifdef WALLPAPER
+			FillRectangle(screen->display, TextWindow(screen),
+#else /* WALLPAPER */
 			XFillRectangle(screen->display, TextWindow(screen),
+#endif /* WALLPAPER */
 #ifdef STATUSLINE
 				screen->instatus && screen->reversestatus ?
 				screen->normalGC :

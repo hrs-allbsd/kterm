@@ -32,7 +32,7 @@ XCOMM $Id: Imakefile,v 6.3 1996/07/12 05:01:03 kagotani Rel $
 		  -DOSMINORVERSION=$(OSMINORVERSION)
    MISC_DEFINES = /* -DALLOWLOGFILEEXEC */ 
     XKB_DEFINES = XkbClientDefines
-        DEFINES = $(XKB_DEFINES) $(XPOLL_DEF) -DKTERM -DSTATUSLINE -DKEEPALIVE
+        DEFINES = $(XKB_DEFINES) $(XPOLL_DEF) -DKTERM -DSTATUSLINE -DKEEPALIVE -DWALLPAPER
 
 #ifdef KTERM_XIM
         XIMSRCS = xim.c
@@ -57,6 +57,7 @@ XCOMM $Id: Imakefile,v 6.3 1996/07/12 05:01:03 kagotani Rel $
            SRCS = $(SRCS1)
            OBJS = $(OBJS1)
        DEPLIBS1 = XkbClientDepLibs XawClientDepLibs
+         XPMLIB = -lXpm
        PROGRAMS = kterm
 
 #ifndef TermcapLibrary
@@ -80,9 +81,9 @@ SpecialCObjectRule(misc,$(_NOOP_),$(MISC_DEFINES))
 SpecialCObjectRule(charproc,$(_NOOP_),$(MISC_DEFINES))
 
 #if InstallXtermSetUID
-SetUIDProgramTarget(kterm,$(OBJS1),$(DEPLIBS1),XkbClientLibs XawClientLibs,$(TERMCAPLIB) $(PTYLIB))
+SetUIDProgramTarget(kterm,$(OBJS1),$(DEPLIBS1),XkbClientLibs XawClientLibs,$(XPMLIB) $(TERMCAPLIB) $(PTYLIB))
 #else
-NormalProgramTarget(kterm,$(OBJS1),$(DEPLIBS1),XkbClientLibs XawClientLibs,$(TERMCAPLIB) $(PTYLIB))
+NormalProgramTarget(kterm,$(OBJS1),$(DEPLIBS1),XkbClientLibs XawClientLibs,$(XPMLIB) $(TERMCAPLIB) $(PTYLIB))
 #endif
 
 #if InstallXtermSetUID && defined(SunArchitecture) && HasSharedLibraries && OSMajorVersion < 5
@@ -101,7 +102,7 @@ LDRESUME = -Bdynamic
 install:: kterm
 	MakeDir($(DESTDIR)$(BINDIR))
 	RemoveFile(kterm.inst)
-	LinkRule(kterm.inst,$(CDEBUGFLAGS) $(CCOPTIONS) $(EXTRA_LDOPTIONS) $(LOCAL_LDFLAGS),$(OBJS1),$(LDOVERRIDE) XawClientLibs $(LDRESUME) $(LDLIBS) $(TERMCAPLIB) $(PTYLIB))
+	LinkRule(kterm.inst,$(CDEBUGFLAGS) $(CCOPTIONS) $(EXTRA_LDOPTIONS) $(LOCAL_LDFLAGS),$(OBJS1),$(LDOVERRIDE) XawClientLibs $(LDRESUME) $(LDLIBS) $(XPMLIB) $(TERMCAPLIB) $(PTYLIB))
 	$(INSTALL) -c $(INSTPGMFLAGS) $(INSTUIDFLAGS) kterm.inst $(DESTDIR)$(BINDIR)/kterm
 	RemoveFile(kterm.inst)
 #else
