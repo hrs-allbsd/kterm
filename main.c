@@ -238,9 +238,20 @@ static Bool IsPts = False;
 
 #ifdef _POSIX_SOURCE
 #define USE_POSIX_WAIT
+#define HAS_POSIX_SAVED_IDS
 #endif
 #ifdef SVR4
 #define USE_POSIX_WAIT
+#define HAS_POSIX_SAVED_IDS
+#endif
+
+#if !defined(MINIX) && !defined(WIN32)
+#include <sys/param.h>	/* for NOFILE */
+#endif
+
+#if (BSD >= 199103)
+#define USE_POSIX_WAIT
+#define HAS_POSIX_SAVED_IDS
 #endif
 
 #include <stdio.h>
@@ -1307,22 +1318,50 @@ char **argv;
 
 	/* Init the Toolkit. */
 	XtSetErrorHandler(xt_error);
+	{
+#ifdef HAS_POSIX_SAVED_IDS
+	    uid_t euid = geteuid();
+	    gid_t egid = getegid();
+	    uid_t ruid = getuid();
+	    gid_t rgid = getgid();
+
+	    if (setegid(rgid) == -1)
+		(void) fprintf(stderr, "setegid(%d): %s\n",
+			       (int) rgid, strerror(errno));
+
+	    if (seteuid(ruid) == -1)
+		(void) fprintf(stderr, "seteuid(%d): %s\n",
+			       (int) ruid, strerror(errno));
+#endif
+
+	    XtSetErrorHandler(xt_error);
 #ifdef KTERM
-	toplevel = XtAppInitialize (&app_con, "KTerm", 
+	    toplevel = XtAppInitialize (&app_con, "KTerm", 
 #else /* !KTERM */
-	toplevel = XtAppInitialize (&app_con, "XTerm", 
+	    toplevel = XtAppInitialize (&app_con, "XTerm", 
 #endif /* !KTERM */
 				    optionDescList, XtNumber(optionDescList), 
 				    &argc, argv, fallback_resources, NULL, 0);
 
-	XtGetApplicationResources(toplevel, (XtPointer) &resource,
+	    XtGetApplicationResources(toplevel, (XtPointer) &resource,
 				  application_resources,
 				  XtNumber(application_resources), NULL, 0);
 
 #ifdef __sgi
-	if (resource.useLocale)
-	    setlocale(LC_ALL,"");
+	    if (resource.useLocale)
+		setlocale(LC_ALL,"");
 #endif
+
+#ifdef HAS_POSIX_SAVED_IDS
+	    if (seteuid(euid) == -1)
+		(void) fprintf(stderr, "seteuid(%d): %s\n",
+			       (int) euid, strerror(errno));
+
+	    if (setegid(egid) == -1)
+		(void) fprintf(stderr, "setegid(%d): %s\n",
+			       (int) egid, strerror(errno));
+#endif
+	}
 
 	waiting_for_initial_map = resource.wait_for_map;
 
@@ -2445,6 +2484,9 @@ spawn ()
 				close (tty);
 			}
 #endif /* TIOCNOTTY */
+#if (BSD >= 199103)
+			(void)revoke(ttydev);
+#endif
 			if ((tty = open(ttydev, O_RDWR, 0)) >= 0) {
 #if defined(CRAY) && defined(TCSETCTTY)
 			    /* make /dev/tty work */
