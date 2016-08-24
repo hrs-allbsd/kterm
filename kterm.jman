@@ -1,0 +1,316 @@
+.\" $Id: kterm.jman,v 6.4 1996/07/12 05:01:34 kagotani Rel $
+.\"
+.\" Copyright (c) 1988, 1989, 1990, 1991, 1992, 1993 and 1994
+.\" XXI working group in Japan Unix Society (XXI).
+.\"
+.\" The X Consortium, and any party obtaining a copy of these files from
+.\" the X Consortium, directly or indirectly, is granted, free of charge, a
+.\" full and unrestricted irrevocable, world-wide, paid up, royalty-free,
+.\" nonexclusive right and license to deal in this software and
+.\" documentation files (the "Software"), including without limitation the
+.\" rights to use, copy, modify, merge, publish, distribute, sublicense,
+.\" and/or sell copies of the Software, and to permit persons who receive
+.\" copies from any such party to do so.  This license includes without
+.\" limitation a license to do the foregoing actions under any patents of
+.\" the party supplying this software to the X Consortium.
+.\" "
+.TH KTERM 1 "12 July 1996" "X Version 11"
+.SH NAME
+kterm \- 多国語用 X 端末エミュレータ
+.SH SYNOPSIS
+.B kterm
+[-\fItoolkitoption\fP ...] [-\fIxtermoption\fP ...] [-option ...]
+.SH DESCRIPTION
+\fIkterm\fP は、\fIxterm\fP(1) をもとにした、多国語用端末のエミュレー
+タです。\fIxterm\fP との主な違いは、ISO2022 で符号化された多国語テキス
+トを扱うことができ、色の付いたテキストを表示でき、ステータスライン機能
+を持つという点です。多国語テキストの入力には、X Input Method (XIM) プ
+ロトコルと、kinput2 プロトコルの両方を利用することができます。詳しくは 
+USING XIM と USING KINPUT2 の節を参照してください。
+.PP
+.SH OPTIONS
+\fIkterm\fP は、\fIxterm\fP(1) のコマンドラインオプションに加え、
+以下のオプションを受け付けます:
+.TP 8
+.BI \-dfl
+\fIkterm\fP がフォントを動的に(要求があったときに)ロードすることを指示
+します。大きなフォントをロードする際に、\fIkterm\fP や X サーバが一瞬
+止まってしまうことがあります。
+.TP 8
+.BI \+dfl
+\fIkterm\fP がフォントをあらかじめロードしておくことを指示します。
+.TP 8
+.BI \-fl " fontlist"
+フォントのリストを指定します。\fIfontlist\fP は任意のワイルドカードを
+含む XLFD を、カンマで区切って並べたリストです。\fIkterm\fP は、必要な
+文字セットを持つフォントをこのリストから選択します。本リリースでは以下
+の文字セットを使用することがあります:
+.br
+"iso8859-1",
+.br
+"iso8859-2",
+.br
+"iso8859-3",
+.br
+"iso8859-4",
+.br
+"iso8859-5",
+.br
+"iso8859-6",
+.br
+"iso8859-7",
+.br
+"iso8859-8",
+.br
+"iso8859-9",
+.br
+"jisx0201.1976-0",
+.br
+"jisx0208.1990-0" または "jisx0208.1983-0",
+.br
+"jisx0212.1990-0",
+.br
+"gb2312.1980-0",
+.br
+"ksc5601.1987-0",
+.br
+"jisc6226.1978-0" または "jisx0208.1983-0"。
+.TP 8
+.BI \-fn " iso8859/1-font"
+Latin-1 (ASCII を含む) のテキストを表示する時に用いる、通常の(ボールド
+でない) ISO8859/1 のフォントを指定します。指定されていない時は、
+\fIfontlist\fP の中から探します。
+.TP 8
+.BI \-fr " roman-kana-font"
+通常の JISX0201 のフォントを指定します。このフォントは、ISO8859/1 のフォ
+ントと同じ高さと幅を持っていなければなりません。指定されていない時は、
+\fIfontlist\fP の中から探します。
+.TP 8
+.BI \-fk " kanji-font"
+漢字テキストを表示する時に用いる通常の JISX0208 のフォントを指定します。
+このフォントは、ISO8859/1 のフォントと同じ高さで、2倍の幅を持っていな
+ければなりません。指定されていない時は、\fIfontlist\fP の中から探しま
+す。
+.TP
+.BI \-flb " bold-fontlist"
+.TP
+.BI \-fb " bold-font"
+.TP
+.BI \-frb " roman-kana-bold-font"
+.TP 8
+.BI \-fkb " kanji-bold-font"
+ボールドフォントを指定します。
+.TP 8
+.BI \-lsp " dots"
+このオプションは各行間に挿入するスペースのドット数を指定します。
+.TP 8
+.BI \-ka
+\fIkterm\fP が X サーバとのソケット接続に KEEPALIVE オプションを用いる
+ことを指示します。サーバが電源をしばしば切る X 端末であるような時に有
+用です。
+.TP 8
+.BI \+ka
+\fIkterm\fP が X サーバとのソケット接続に KEEPALIVE オプションを用いな
+いことを指示します。
+.TP 8
+.BI \-km " kanji-mode"
+pty とやりとりされる漢字コードを指定します。漢字モードが ``euc'' の場
+合、入出力は日本語 EUC であると仮定します。``sjis'' の場合、Shift-JIS 
+コード(マイクロソフト漢字コード)であると仮定します。
+.TP 8
+.BI \-sn
+デフォルトでは、ステータスラインは(ウインドウの他の部分に対して相対的
+に)反転します。このオプションはステータスラインを反転しなくします(しか
+し、箱で囲まれます)。
+.TP 8
+.BI \+sn
+このオプションはステータスラインを反転します。
+.TP 8
+.BI \-st
+ステータスラインがスタート時に表示されるようにします。
+.TP 8
+.BI \+st
+ステータスラインがスタート時に表示されないようにします。
+.TP 8
+.BI \-version
+単に \fIkterm\fP のバージョンを表示します。
+.TP 8
+.BI \-xim
+\fIkterm\fP の起動時に IM をオープン(しようと)することを指示します。適
+切な IM サーバが走っていない場合は、\fIkterm\fP はそれを待つことはなく、
+サーバが利用可能になってから接続を行います。
+.TP 8
+.BI \+xim
+\fIkterm\fP が起動時に IM をオープンしないことを指示します。
+.SH RESOURCES
+このプログラムは、\fIxterm\fP のすべてのリソースと同様に、以下の 
+\fIvt100\fP ウィジェット用リソースも解釈します。
+.TP 8
+.B "dynamicFontLoad (\fPclass\fB DynamicFontLoad)"
+\fIkterm\fP がフォントを動的にロードするかどうかを指定します。
+デフォルトは ``true'' です。
+.TP 8
+.B "fontList (\fPclass\fB FontList)"
+フォント名のリストを指定します。デフォルトは 
+``-*-fixed-medium-r-normal--14-*,
+-*-gothic-medium-r-normal--14-*,
+-*-mincho-medium-r-normal--14-*'' です。
+.TP 8
+.B "boldFontList (\fPclass\fB FontList)"
+ボールドフォント名のリストを指定します。デフォルトでは指定しません。
+.TP 8
+.B "font (\fPclass\fB Font)"
+Latin-1 のフォント名を指定します。デフォルトでは指定しません。
+.TP 8
+.B "boldFont (\fPclass\fB Font)"
+Latin-1 のボールドフォント名を指定します。デフォルトでは指定しません。
+.TP 8
+.B "romanKanaFont (\fPclass\fB RomanKanaFont)"
+JIS-Roman と片仮名のフォント名を指定します。デフォルトでは指定しません。
+.TP 8
+.B "romanKanaBoldFont (\fPclass\fB RomanKanaFont)"
+JIS-Roman と片仮名のボールドフォント名を指定します。デフォルトでは指定しません。
+.TP 8
+.B "kanjiFont (\fPclass\fB KanjiFont)"
+漢字のフォント名を指定します。デフォルトでは指定しません。
+.TP 8
+.B "kanjiBoldFont (\fPclass\fB KanjiFont)"
+漢字のボールドフォント名を指定します。デフォルトでは指定しません。
+.TP 8
+.B "kanjiMode (\fPclass\fB KanjiMode)"
+pty とやりとりする漢字コードを指定します。デフォルトは ``jis'' です。
+.TP 8
+.B "lineSpace (\fPclass\fB LineSpace)"
+各行間に挿入するスペース量を指定します。デフォルトは ``0'' です。
+.TP 8
+.B "keepAlive (\fPclass\fB KeepAlive)"
+\fIkterm\fP が X サーバとのソケット接続に
+KEEPALIVE オプションを用いるかどうか指定します。
+デフォルトは ``false'' です。
+.TP 8
+.B "statusLine (\fPclass\fB StatusLine)"
+ステータスラインをスタート時に表示します。デフォルトは ``false'' です。
+.TP 8
+.B "statusNormal (\fPclass\fB StatusNormal)"
+ステータスラインが反転しないことを指定します。デフォルトは ``false'' です。
+.TP 8
+.B "forwardKeyEvent (\fPclass\fB ForwardKeyEvent)"
+false だと変換サーバにキーイベントを送りません。この場合、フォーカスが 
+\fIkterm\fP にあるがポインタは他のウインドウ上にある時には変換サーバは
+イベントを受け取ることができません。その代わり遅いネットワークでは変換
+時のレスポンスが改善されることがあります。デフォルトは ``true'' です。
+.TP 8
+.B "openIm (\fPclass\fB OpenIm)"
+\fIkterm\fP の起動時に IM をオープン(しようと)するかどうかを指定します。
+デフォルトは ``false'' です。
+.TP 8
+.B "eucJPLocale (\fPclass\fB EucJPLocale)"
+入力メソッドのロケールを、カンマで区切ったリストの形式で指定します。デ
+フォルトは``ja_JP.eucJP,ja_JP.ujis,ja_JP.EUC,japanese.euc,
+Japanese-EUC,ja,japan'' です。詳しくは USING XIM の節を参照してくださ
+い。
+.TP 8
+.B "inputMethod (\fPclass\fB InputMethod)"
+入力メソッドモディファイアを指定します。デフォルトでは指定しません。
+(これは、環境変数 XMODIFIERS を使用するという意味です)
+.TP 8
+.B "preeditType (\fPclass\fB PreeditType)"
+XIM プロトコルで用いる入力スタイルを、カンマで区切ったリストの形式で指
+定します。現在は ``OverTheSpot'' と ``Root'' がサポートされています。
+デフォルトは ``OverTheSpot,Root'' です。
+.SH ACTIONS
+\fIvt100\fP のトランスレーションリソース内で利用できるアクションが以下
+のように追加されています:
+.TP 8
+.B "open-im([\fIinput-method\fP])"
+このアクションは、指定された入力メソッドモディファイアの IM をオープン
+(しようと)します。もし \fIinput-method\fP が省略されれば、最後に指定さ
+れたモディファイアがそのまま使用されます。もし \fIinput-method\fP がキー
+ワード XMODIFIERS ならば、環境変数 XMODIFIERS が使用されます。
+.TP 8
+.B "close-im()"
+このアクションは IM をクローズします。
+.TP 8
+.B "begin-conversion(\fIconversion-atom\fP)"
+このアクションは、kinput2 プロトコルを用いて、テキスト入力のための変換
+を開始します。日本語変換のための \fIconversion-atom\fP は
+``_JAPANESE_CONVERSION'' です。
+.SH TERMCAP
+\fIkterm\fP で利用できる \fItermcap\fP(5) エントリには、``kterm'',
+``xterm'', ``vt102'', ``vt100'' および ``ansi'' があります。
+.SH "USING XIM"
+\fIkterm\fP は、まず国際環境(ロケール)を、\fIvt100\fP リソース 
+"eucJPLocale" を用いて設定します。環境変数 LANG は無視されます。これは 
+\fIkterm\fP が日本語 EUC を内部入力コードとして用いているためです。も
+し、お使いのシステムが、デフォルトで用意されているロケール名をサポート
+していない場合は、app-defaults ファイルに適切に設定してください。その
+後 \fIkterm\fP は、ロケールモディファイアを、リソース "inputMethod" ま
+たは環境変数 XMODIFIERS に従って設定します。
+.PP
+\fIkterm\fP が、"-xim" オプションで起動されたり、vtMenu 内の "Open
+Input Method" が選択されると、\fIkterm\fP は単に IM サーバの起動を知ら
+せるためのコールバックを登録することしかしません。この時点で適切なサー
+バが走っていたり、後から利用可能になると \fIkterm\fP はそのサーバに接
+続します。変換の開始は、IM サーバの設定に依存します。
+.PP
+もし、\fIkterm\fP が kinput2 プロトコルのサーバと接続していると、IM は
+オープンできません。
+.PP
+さらに詳しい情報(テキストの入力/変換/修正方法など)は変換サーバのドキュ
+メント(\fIkinput2\fP(1))を参照して下さい。
+.sp
+.B 日本語以外の言語
+.br
+日本語以外の言語を入力するには、\fIvt100\fP リソース "eucJPLocale" を
+必要なロケール名に設定し、漢字モードを("-km euc" オプション、
+"*vt100.kanjiMode: euc" リソース、あるいは vtMenu の "Japanese EUC
+Mode" エントリを用いて)日本語 EUC に設定してください。日本語 EUC モー
+ドでは、IM から入力された文字は、修正されずに pty に渡されるので、この
+方法はどのようなロケールに対しても動作するはずです。ただし、この機構は、
+将来変更される可能性があります。
+.sp
+.B 注意
+.br
+接続している IM サーバがあるタイミングで死ぬと \fIkterm\fP がハングし
+てしまうことがあります。ある \fIkterm\fP 上でそれに接続しているサーバ、
+および、\fIkterm\fP と接続を確立しようとしているサーバを殺してはいけま
+せん。IM サーバを殺すときは、どの \fIkterm\fP もそのサーバに接続してい
+ないことを必ず確かめてください。
+.sp
+.B お知らせ
+.br
+\fIkterm\fP は、X11R5 に基づく XIMP プロトコルを用いたサーバとは通信で
+きません。
+.SH "USING KINPUT2"
+デフォルトでは、control-Kanji キーを押すと、kinput2 プロトコルを用いた
+日本語テキストのための変換が始まります。\fIkinput2\fP(1) などの変換サー
+バはそれまでに走らせてある必要があり、でなければ `Conversion Server
+not found' という警告メッセージが現れます。他の言語については、もしサー
+バが利用可能ならば、トランスレーションテーブルを変更することによって、
+変換を開始するためのキーをバインドすることができます。
+.PP
+IM がオープンされ(ようとし)ている場合は、kinput2 プロトコルを用いた変
+換は開始できません。
+.PP
+さらに詳しい情報(テキストの入力/変換/修正方法など)は変換サーバのドキュ
+メント(\fIkinput2\fP(1))を参照して下さい。
+.SH "SEE ALSO"
+xterm(1), resize(1), X(1), kinput2(1), pty(4), tty(4)
+.br
+.I ``Xterm Control Sequences''
+.SH BUGS
+\fIkterm\fP は2バイト文字が1バイト文字の二倍の幅を持っているものと仮定
+します。不定幅のフォントは \fIxterm\fP 同様扱うことができません。
+.PP
+本バージョンでは JIS モードで漢字を入力する際、``ESC $ B'' を漢字文字
+セットの割当に用います。
+.SH AUTHORS
+以下を含む多くの人々:
+.sp
+佐野勝也 (株式会社東芝),
+入江英夫 (ソニー株式会社),
+加藤朗 (東京大学),
+有座道春 (株式会社 SRA),
+石曽根信 (株式会社 SRA),
+籠谷裕人 (岡山大学),
+武川進 (日本電信電話株式会社)
