@@ -32,6 +32,7 @@
 #include "data.h"
 #include "error.h"
 #include "menu.h"
+#include "kanji_map.h"
 
 #include <stdio.h>
 
@@ -1340,4 +1341,59 @@ register TScreen *screen;
 	}
 }
 
+int
+isJISX0208_1990(c1, c2)
+int c1, c2;
+{
+	int n1 = (c1 & 0x7f)-33;
+	int n2 = (c2 & 0x7f)-33;
+
+	if (n1 == 83 && (n2 == 4 || n2 == 5))
+		return 1;
+	else
+		return 0;
+}
+
+int
+isJISX0213_1(c1, c2)
+int c1, c2;
+{
+	int n1 = (c1 & 0x7f)-33;
+	int n2 = (c2 & 0x7f)-33;
+
+	if (kanji_map[n1][n2] & CHAR_JISX0208_1990)
+		return 0;
+	else if (! (kanji_map[n1][n2] & CHAR_JISX0213_2000_1))
+		return 0;
+	else
+		return 1;
+}
+
+int
+isJISX0213_2004_1(c1, c2)
+int c1, c2;
+{
+	int n1 = (c1 & 0x7f)-33;
+	int n2 = (c2 & 0x7f)-33;
+
+	if (kanji_map[n1][n2] & CHAR_JISX0213_2000_1)
+		return 0;
+	else if (! (kanji_map[n1][n2] & CHAR_JISX0213_2004_1))
+		return 0;
+	else
+		return 1;
+}
+
+int
+isJISX0213_2(c1, c2)
+int c1, c2;
+{
+	int n1 = (c1 & 0x7f)-33;
+	int n2 = (c2 & 0x7f)-33;
+
+	if (! (kanji_map[n1][n2] & CHAR_JISX0213_2000_2))
+		return 0;
+	else
+		return 1;
+}
 #endif /* KTERM_MBCS */

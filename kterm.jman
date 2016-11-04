@@ -64,17 +64,51 @@ USING XIM $B$H(B USING KINPUT2 $B$N@a$r;2>H$7$F$/$@$5$$!#(B
 .br
 "iso8859-9",
 .br
+"iso8859-10",
+.br
+"iso8859-11",
+.br
+"iso8859-13",
+.br
+"iso8859-14",
+.br
+"iso8859-15",
+.br
+"iso8859-16",
+.br
 "jisx0201.1976-0",
 .br
-"jisx0208.1990-0" $B$^$?$O(B "jisx0208.1983-0",
+"jisc6226.1978-0",
+.br
+"jisx0208.1983-0",
+.br
+"jisx0208.1990-0",
 .br
 "jisx0212.1990-0",
 .br
-"gb2312.1980-0",
+"jisx0213.2000-1",
+.br
+"jisx0213.2000-2",
+.br
+"jisx0213.2004-1",
 .br
 "ksc5601.1987-0",
 .br
-"jisc6226.1978-0" $B$^$?$O(B "jisx0208.1983-0"$B!#(B
+"gb2312.1980-0",
+.br
+"cns11643.1992-1",
+.br
+"cns11643.1992-2",
+.br
+"cns11643.1992-3",
+.br
+"cns11643.1992-4",
+.br
+"cns11643.1992-5",
+.br
+"cns11643.1992-6",
+.br
+"cns11643.1992-7"$B!#(B
 .TP 8
 .BI \-fn " iso8859/1-font"
 Latin-1 (ASCII $B$r4^$`(B) $B$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k!"DL>o$N(B($B%\!<%k%I(B
@@ -86,19 +120,116 @@ Latin-1 (ASCII $B$r4^$`(B) $B$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k!"DL>o$N(B($B%\!
 $B%s%H$HF1$89b$5$HI}$r;}$C$F$$$J$1$l$P$J$j$^$;$s!#;XDj$5$l$F$$$J$$;~$O!"(B
 \fIfontlist\fP $B$NCf$+$iC5$7$^$9!#(B
 .TP 8
-.BI \-fk " kanji-font"
-$B4A;z%F%-%9%H$rI=<($9$k;~$KMQ$$$kDL>o$N(B JISX0208 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
-$B$3$N%U%)%s%H$O!"(BISO8859/1 $B$N%U%)%s%H$HF1$89b$5$G!"(B2$BG\$NI}$r;}$C$F$$$J(B
-$B$1$l$P$J$j$^$;$s!#;XDj$5$l$F$$$J$$;~$O!"(B\fIfontlist\fP $B$NCf$+$iC5$7$^(B
+.BI \-fkB " kanji-font"
+$B4A;z%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
+$BDL>o$N(B JISX0208-1983 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
+$B$3$N%U%)%s%H$O!"(BISO8859/1 $B$N%U%)%s%H$HF1$89b$5$G!"(B
+2$BG\$NI}$r;}$C$F$$$J$1$l$P$J$j$^$;$s!#(B
+$B;XDj$5$l$F$$$J$$;~$O!"(B\fIfontlist\fP $B$NCf$+$iC5$7$^(B
 $B$9!#(B
+.BI \-fk@ " old-kanji-font"
+$B4A;z$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
+JISC6226-1978 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
+$B$3$N%U%)%s%H$O!"(BISO8859/1 $B$N%U%)%s%H$HF1$89b$5$G!"(B
+2$BG\$NI}$r;}$C$F$$$J$1$l$P$J$j$^$;$s!#(B
+$B;XDj$5$l$F$$$J$$;~$O!"(B\fIfontlist\fP $B$NCf$+$iC5$7$^$9!#(B
+.TP 8
+.BI \-fk@B " 1990-kanji-font"
+$B4A;z$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
+$BDL>o$N(B JISX0208-1990 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
+$B$3$N%U%)%s%H$O!"(BISO8859/1 $B$N%U%)%s%H$HF1$89b$5$G!"(B
+2$BG\$NI}$r;}$C$F$$$J$1$l$P$J$j$^$;$s!#(B
+$B;XDj$5$l$F$$$J$$;~$O!"(B\fIfontlist\fP $B$NCf$+$iC5$7$^$9!#(B
+.TP 8
+.BI \-fkD " hojo-kanji-font"
+$BJd=u4A;z$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
+JISX0212-1990 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
+.TP 8
+.BI \-fkO " extended-kanji-font-1"
+$B3HD%4A;z$N0lLL(B($BBh;0?e=`(B)$B$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
+JISX0213-2000-1 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
+.TP 8
+.BI \-fkP " extended-kanji-font-2"
+$B3HD%4A;z$NFsLL(B($BBh;M?e=`(B)$B$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
+JISX0213-2000-1 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
+.TP 8
+.BI \-fkQ " extended-2004-kanji-font-1"
+$B3HD%4A;z(B2004$BG/HG$N0lLL(B($BBh;0?e=`(B)$B$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
+JISX0213-2004-1 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
+.TP 8
+.BI \-fkC " hangl-font"
+$B%O%s%0%kJ8;z$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
+KSC5601-1987 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
+.TP 8
+.BI \-fkA " hanzi-font"
+$BCf9q8l4A;z$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
+GB2312-1980 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
+.TP 8
+.BI \-fkG " cns-font-1"
+$BBfOQ4A;z(B($B0lLL(B)$B$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
+CNS11643-1992-1 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
+.TP 8
+.BI \-fkH " cns-font-2"
+$BBfOQ4A;z(B($B%KLL(B)$B$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
+CNS11643-1992-2 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
+.TP 8
+.BI \-fkI " cns-font-3"
+$BBfOQ4A;z(B($B;0LL(B)$B$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
+CNS11643-1992-3 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
+.TP 8
+.BI \-fkJ " cns-font-4"
+$BBfOQ4A;z(B($B;MLL(B)$B$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
+CNS11643-1992-4 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
+.TP 8
+.BI \-fkK " cns-font-5"
+$BBfOQ4A;z(B($B8^LL(B)$B$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
+CNS11643-1992-5 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
+.TP 8
+.BI \-fkL " cns-font-6"
+$BBfOQ4A;z(B($BO;LL(B)$B$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
+CNS11643-1992-6 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
+.TP 8
+.BI \-fkM " cns-font-7"
+$BBfOQ4A;z(B($B<7LL(B)$B$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
+CNS11643-1992-7 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
 .TP
 .BI \-flb " bold-fontlist"
-.TP
+.TP 8
 .BI \-fb " bold-font"
-.TP
+.TP 8
 .BI \-frb " roman-kana-bold-font"
 .TP 8
-.BI \-fkb " kanji-bold-font"
+.BI \-fkbB " kanji-bold-font"
+.TP 8
+.BI \-fkb@ " old-kanji-bold-font"
+.TP 8
+.BI \-fkb@B " 1990-kanji-bold-font"
+.TP 8
+.BI \-fkbD " hojo-kanji-bold-font"
+.TP 8
+.BI \-fkbO " extended-kanji-bold-font-1"
+.TP 8
+.BI \-fkbP " extended-kanji-bold-font-2"
+.TP 8
+.BI \-fkbQ " extended-2004-kanji-bold-font-1"
+.TP 8
+.BI \-fkbC " hangl-bold-font"
+.TP 8
+.BI \-fkbA " hanzi-bold-font"
+.TP 8
+.BI \-fkbG " cns-bold-font-1"
+.TP 8
+.BI \-fkbH " cns-bold-font-2"
+.TP 8
+.BI \-fkbI " cns-bold-font-3"
+.TP 8
+.BI \-fkbJ " cns-bold-font-4"
+.TP 8
+.BI \-fkbK " cns-bold-font-5"
+.TP 8
+.BI \-fkbL " cns-bold-font-6"
+.TP 8
+.BI \-fkbM " cns-bold-font-7"
 $B%\!<%k%I%U%)%s%H$r;XDj$7$^$9!#(B
 .TP 8
 .BI \-lsp " dots"
@@ -115,8 +246,9 @@ Latin-1 (ASCII $B$r4^$`(B) $B$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k!"DL>o$N(B($B%\!
 .TP 8
 .BI \-km " kanji-mode"
 pty $B$H$d$j$H$j$5$l$k4A;z%3!<%I$r;XDj$7$^$9!#4A;z%b!<%I$,(B ``euc'' $B$N>l(B
-$B9g!"F~=PNO$OF|K\8l(B EUC $B$G$"$k$H2>Dj$7$^$9!#(B``sjis'' $B$N>l9g!"(BShift-JIS 
-$B%3!<%I(B($B%^%$%/%m%=%U%H4A;z%3!<%I(B)$B$G$"$k$H2>Dj$7$^$9!#(B
+$B9g!"F~=PNO$OF|K\8l(B EUC $B$G$"$k$H2>Dj$7$^$9!#(B``sjis'' $B$N>l9g!"(BShift_JIS 
+$B%3!<%I(B($B%^%$%/%m%=%U%H4A;z%3!<%I(B)$B$G$"$k$H2>Dj$7$^$9!#4A;z%b!<%I$,(B
+``utf-8'' $B$N>l9g!"F~=PNO$O(B UTF-8 $B$G$"$k$H2>Dj$7$^$9!#(B
 .TP 8
 .BI \-sn
 $B%G%U%)%k%H$G$O!"%9%F!<%?%9%i%$%s$O(B($B%&%$%s%I%&$NB>$NItJ,$KBP$7$FAjBPE*(B
@@ -304,6 +436,13 @@ xterm(1), resize(1), X(1), kinput2(1), pty(4), tty(4)
 .PP
 $BK\%P!<%8%g%s$G$O(B JIS $B%b!<%I$G4A;z$rF~NO$9$k:]!"(B``ESC $ B'' $B$r4A;zJ8;z(B
 $B%;%C%H$N3dEv$KMQ$$$^$9!#(B
+.SH NOTE
+$B$3$N(B kterm $B$K$O(B JIS X 0213:2000 $B$GDI2C$5$l$?Bh;0?e=`!"Bh;M?e=`$N4A;z$r(B
+$B;HMQ$9$k$?$a$N%Q%C%A$,Ev$C$F$$$^$9!#(BJIS $B%b!<%I$N>l9g$K$O(B ``ESC $ ( O''
+$B$d(B ``ESC $ ( P'' $B$K$h$C$F(B JIS X 0213 $B$NJ8;z$r07$($^$9!#F|K\8l(B EUC $B%b!<%I(B
+$B$*$h$S(B SJIS $B%b!<%I$N>l9g$K$O(B JIS X 0208 $B$GL$Dj5A$NJ8;z$,8=$o$l$?>l9g$K(B
+$B$=$NJ8;z$N$_(B JIS X 0213 $B$NJ8;z$H$7$F07$$$^$9!#$^$?(B ``ESC $ ( Q'' $B$K(B
+$B$h$C$F(B JIS X 0213 $B$N(B 2004$BG/HG$NJ8;z$r07$&$3$H$,$G$-$^$9!#(B
 .SH AUTHORS
 $B0J2<$r4^$`B?$/$N?M!9(B:
 .sp

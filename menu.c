@@ -75,6 +75,7 @@ static void do_statusline(), do_reversestatus();
 #ifdef KTERM_KANJIMODE
 static void do_eucmode();
 static void do_sjismode();
+static void do_utf8mode();
 #endif /* KTERM_KANJIMODE */
 #ifdef KTERM_XIM
 static void do_openim();
@@ -138,6 +139,7 @@ MenuEntry vtMenuEntries[] = {
 # ifdef KTERM_KANJIMODE
     { "eucmode",	do_eucmode, NULL },		/* 24 or 26 */
     { "sjismode",	do_sjismode, NULL },		/* 25 or 27 */
+    { "utf8mode",	do_utf8mode, NULL },		/* 26 or 28 */
 # endif /* KTERM_KANJIMODE */
 # ifdef KTERM_XIM
     { "openim",		do_openim, NULL },		/* 24, 26 or 28 */
@@ -259,6 +261,7 @@ static Bool domenu (w, event, params, param_count)
 #ifdef KTERM_KANJIMODE
 	    update_eucmode();
 	    update_sjismode();
+	    update_utf8mode();
 #endif /* KTERM_KANJIMODE */
 #ifdef KTERM_XIM
 	    update_openim();
@@ -830,13 +833,16 @@ static void do_jismode (gw, closure, data)
 
     term->flags &= ~EUC_KANJI;
     term->flags &= ~SJIS_KANJI;
+    term->flags &= ~UTF8_KANJI;
     screen->gsets[0] = GSET_ASCII;
-    screen->gsets[1] = GSET_KANA;
+    screen->gsets[1] = GSET_LATIN1R;
     screen->gsets[2] = GSET_ASCII;
     screen->gsets[3] = GSET_ASCII;
+    screen->curgl = 0;
     screen->curgr = 1;
     update_eucmode();
     update_sjismode();
+    update_utf8mode();
 }
 
 
@@ -851,13 +857,16 @@ static void do_eucmode (gw, closure, data)
     } else {
 	term->flags |= EUC_KANJI;
 	term->flags &= ~SJIS_KANJI;
+	term->flags &= ~UTF8_KANJI;
 	screen->gsets[0] = GSET_ASCII;
 	screen->gsets[1] = GSET_KANJI;
 	screen->gsets[2] = GSET_KANA;
 	screen->gsets[3] = GSET_HOJOKANJI;
+	screen->curgl = 0;
 	screen->curgr = 1;
 	update_eucmode();
 	update_sjismode();
+	update_utf8mode();
     }
 }
 
@@ -873,6 +882,7 @@ static void do_sjismode (gw, closure, data)
     } else {
 	term->flags &= ~EUC_KANJI;
 	term->flags |= SJIS_KANJI;
+	term->flags &= ~UTF8_KANJI;
 	screen->gsets[0] = GSET_ASCII;
 	screen->gsets[1] = GSET_KANA;
 	screen->gsets[2] = GSET_ASCII;
@@ -880,8 +890,36 @@ static void do_sjismode (gw, closure, data)
 	screen->curgr = 1;
 	update_eucmode();
 	update_sjismode();
+	update_utf8mode();
     }
 }
+
+
+static void do_utf8mode (gw, closure, data)
+    Widget gw;
+    caddr_t closure, data;
+{
+    register TScreen *screen = &term->screen;
+
+    if (term->flags & UTF8_KANJI) {
+	do_jismode(gw, closure, data);
+    } else {
+	term->flags &= ~EUC_KANJI;
+	term->flags &= ~SJIS_KANJI;
+	term->flags |= UTF8_KANJI;
+	screen->gsets[0] = GSET_ASCII;
+	screen->gsets[1] = GSET_KANJI;
+	screen->gsets[2] = GSET_KANA;
+	screen->gsets[3] = GSET_HOJOKANJI;
+	screen->curgl = 0;
+	screen->curgr = 1;
+	update_eucmode();
+	update_sjismode();
+	update_utf8mode();
+	make_unicode_map();
+    }
+}
+
 #endif /* KTERM_KANJIMODE */
 
 #ifdef KTERM_XIM
@@ -1487,16 +1525,20 @@ void HandleSetKanjiMode(w, event, params, param_count)
 {
     if (*param_count == 1) {
 	switch (params[0][0]) {
-	  case 'j': case 'J':
+	  case 'j': case 'J': case 'i': case 'I':
 	    do_jismode (w, NULL, NULL);
 	    break;
-	  case 'e': case 'E': case 'x': case 'X': case 'u': case 'U':
+	  case 'e': case 'E': case 'x': case 'X':
 	    term->flags &= ~EUC_KANJI;
 	    do_eucmode (w, NULL, NULL);
 	    break;
 	  case 's': case 'S': case 'm': case 'M':
 	    term->flags &= ~SJIS_KANJI;
 	    do_sjismode (w, NULL, NULL);
+	    break;
+	  case 'u': case 'U':
+	    term->flags &= ~UTF8_KANJI;
+	    do_utf8mode (w, NULL, NULL);
 	    break;
 	  default:
 	    Bell(XkbBI_MinorError, 0);

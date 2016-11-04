@@ -153,15 +153,20 @@ extern void HandleSetKanjiMode();
 #    define vtMenu_eucmode (vtMenu_line3+1)
 #  endif
 #  define vtMenu_sjismode (vtMenu_eucmode+1)
+#  define vtMenu_utf8mode (vtMenu_sjismode+1)
 #endif /* KTERM_KANJIMODE */
 #ifdef KTERM_XIM
-#  ifdef vtMenu_sjismode
-#    define vtMenu_openim (vtMenu_sjismode+1)
+#  ifdef vtMenu_utf8mode
+#    define vtMenu_openim (vtMenu_utf8mode+1)
 #  else
-#    ifdef vtMenu_reversestatus
-#      define vtMenu_openim (vtMenu_reversestatus+1)
+#    ifdef vtMenu_sjismode
+#      define vtMenu_openim (vtMenu_sjismode+1)
 #    else
-#      define vtMenu_openim (vtMenu_line3+1)
+#      ifdef vtMenu_reversestatus
+#        define vtMenu_openim (vtMenu_reversestatus+1)
+#      else
+#        define vtMenu_openim (vtMenu_line3+1)
+#      endif
 #    endif
 #  endif
 #endif /* KTERM_XIM */
@@ -353,6 +358,11 @@ extern void HandleSetKanjiMode();
   update_menu_item (term->screen.vtMenu, \
 		    vtMenuEntries[vtMenu_sjismode].widget, \
 		    term->flags & SJIS_KANJI)
+
+#define update_utf8mode() \
+  update_menu_item (term->screen.vtMenu, \
+		    vtMenuEntries[vtMenu_utf8mode].widget, \
+		    term->flags & UTF8_KANJI)
 #endif /* KTERM_KANJIMODE */
 #ifdef KTERM_XIM
 #define update_openim() \

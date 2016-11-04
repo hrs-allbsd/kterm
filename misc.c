@@ -775,7 +775,7 @@ int (*func)();
 		mode = 10 * mode + (c - '0');
 	if (c != ';') okay = False;
 	cp = buf;
-	while(isprint((c = (*func)()) & 0x7f) && cp < bufend)
+	while(isprint((c = (*func)(), c = (c >= 0x80) ?'?' :c)) && cp < bufend)
 		*cp++ = c;
 	if (c != 7) okay = False;
 	*cp = 0;

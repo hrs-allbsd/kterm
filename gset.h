@@ -29,15 +29,15 @@
 #define MBCS		0x40 /* multi-byte character sets */
 #define MBC2		0x7f /* second byte of a mbcs character */
   /*
-   * No character set uses designating characters less than '/'.
-   * Final characters more than 'n' can not be used in current kterm.
+   * No character set uses designating characters less than '@'
+   * except for ESC ( 0.
    */
-#define GSET(c)		((c) - '/')
-#define GSETFC(i)	(((i) & ~(MBCS|CS96)) + '/')
+#define GSET(c)		((c) - ('@' - 1))
+#define GSETFC(i)	(((i) & ~(MBCS|CS96)) + ('@' - 1))
 		/* final character of a designation sequense for a gset */
 /* code of Ichr,Bchr */
 
-#define GSET_GRAPH	GSET('0')
+#define GSET_GRAPH	(CS96|0)
 #define GSET_IRV	GSET('@')
 #define GSET_UK		GSET('A')
 #define GSET_ASCII	GSET('B')
@@ -58,13 +58,30 @@
 #define GSET_GREEK	(CS96|GSET('F'))
 #define GSET_HEBREW	(CS96|GSET('H'))
 #define GSET_LATIN5R	(CS96|GSET('M'))
+#define GSET_LATIN6R	(CS96|GSET('V'))
+#define GSET_THAI	(CS96|GSET('T'))
+#define GSET_LATIN7R	(CS96|GSET('Y'))
+#define GSET_LATIN8R	(CS96|GSET('_'))
+#define GSET_LATIN9R	(CS96|GSET('b'))
+#define GSET_LATIN10R	(CS96|GSET('f'))
 
 #ifdef KTERM_MBCS
-# define GSET_OLDKANJI	(MBCS|GSET('@'))
-# define GSET_HANZI	(MBCS|GSET('A'))
-# define GSET_KANJI	(MBCS|GSET('B'))
-# define GSET_HANJA	(MBCS|GSET('C'))
-# define GSET_HOJOKANJI	(MBCS|GSET('D'))
+# define GSET_OLDKANJI  (MBCS|GSET('@'))
+# define GSET_HANZI     (MBCS|GSET('A'))
+# define GSET_KANJI     (MBCS|GSET('B'))
+# define GSET_HANJA     (MBCS|GSET('C'))
+# define GSET_HOJOKANJI (MBCS|GSET('D'))
+# define GSET_CNS1      (MBCS|GSET('G'))
+# define GSET_CNS2      (MBCS|GSET('H'))
+# define GSET_CNS3      (MBCS|GSET('I'))
+# define GSET_CNS4      (MBCS|GSET('J'))
+# define GSET_CNS5      (MBCS|GSET('K'))
+# define GSET_CNS6      (MBCS|GSET('L'))
+# define GSET_CNS7      (MBCS|GSET('M'))
+# define GSET_EXTKANJI1 (MBCS|GSET('O'))
+# define GSET_EXTKANJI2 (MBCS|GSET('P'))
+# define GSET_EXTKANJI2004_1 (MBCS|GSET('Q'))
+# define GSET_90KANJI   (MBCS|GSET('_'))
 #endif /* KTERM_MBCS */
 
 #define F_ISO8859_1	0
@@ -76,18 +93,37 @@
 #define F_ISO8859_7	6
 #define F_ISO8859_8	7
 #define F_ISO8859_9	8
-#define F_JISX0201_0	9
+#define F_ISO8859_10	9
+#define F_ISO8859_11	10
+#define F_ISO8859_13	11
+#define F_ISO8859_14	12
+#define F_ISO8859_15	13
+#define F_ISO8859_16	14
+#define F_JISX0201_0	15
+
 #ifdef KTERM_MBCS
-#  define F_JISX0208_0	10
-#  define F_JISX0212_0	11
-#  define F_GB2312_0	12
-#  define F_KSC5601_0	13
-#  define F_JISC6226_0	14
-#  define FCNT		15
+#  define F_JISX0208_1990_0	16
+#  define F_JISX0208_0		17
+#  define F_JISX0212_0		18
+#  define F_GB2312_0		19
+#  define F_KSC5601_0		20
+#  define F_JISC6226_0		21
+#  define F_CNS11643_1		22
+#  define F_CNS11643_2		23
+#  define F_CNS11643_3		24
+#  define F_CNS11643_4		25
+#  define F_CNS11643_5		26
+#  define F_CNS11643_6		27
+#  define F_CNS11643_7		28
+#  define F_JISX0213_1		29
+#  define F_JISX0213_2		30
+#  define F_JISX0213_2004_1	31
+#  define FCNT                  32
 #else
-#  define FCNT		10
+#  define FCNT		16
 #endif
 
 extern int gsettofnum[];
 extern Boolean gsetontheright[];
 extern Char *gsetmaponfont[];
+extern int fnumtogset[];

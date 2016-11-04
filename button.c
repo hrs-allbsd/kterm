@@ -248,17 +248,29 @@ Cardinal *num_params;
 
 
 
+enum {
+    TRY_COMPOUND_TEXT,
+    TRY_UTF8_STRING,
+    TRY_STRING,
+};
 
 struct _SelectionList {
     String *params;
     Cardinal count;
     Time time;
 #ifdef KTERM /* from exterm */
-    Boolean asked;
     Atom selection;
+    int  try;
+    char *ctext;
+    unsigned long ctext_len;
 #endif /* KTERM */
 };
 
+static void paste_compound_text();
+static void paste_utf8_string();
+static void paste_string();
+static void paste_cs();
+static void paste_text();
 
 static void _GetSelection(w, time, params, num_params)
 Widget w;
@@ -302,12 +314,15 @@ Cardinal num_params;
 	    list->count = num_params; /* decremented above */
 	    list->time = time;
 #ifdef KTERM /* from exterm */
-	    list->asked = True;
 	    list->selection = selection;
+	    list->try = TRY_COMPOUND_TEXT;
+	    list->ctext = NULL;
+	    list->ctext_len = 0;
 #endif /* KTERM */
 	} else list = NULL;
 #ifdef KTERM
-	XtGetSelectionValue(w, selection, XA_TEXT(XtDisplay(w)), SelectionReceived,
+	XtGetSelectionValue(w, selection, 
+			    XA_COMPOUND_TEXT(XtDisplay(w)), SelectionReceived,
 			    (XtPointer)list, time);
 #else /* !KTERM */
 	XtGetSelectionValue(w, selection, XA_STRING, SelectionReceived,
@@ -328,104 +343,209 @@ XtPointer value;
 unsigned long *length;
 int *format;
 {
-    int pty = ((XtermWidget)w)->screen.respond;	/* file descriptor of pty */
-    register char *lag, *cp, *end;
-    char *line = (char*)value;
-#ifdef KTERM
-    char lbuf[256 + 1];
-#endif /* KTERM */
-				  
+    struct _SelectionList* list = (struct _SelectionList*)client_data;
+
     if (*type == 0 /*XT_CONVERT_FAIL*/ || *length == 0 || value == NULL) {
 	/* could not get this selection, so see if there are more to try */
-	struct _SelectionList* list = (struct _SelectionList*)client_data;
 	if (list != NULL) {
 #ifdef KTERM /* from exterm */
             /* ask XA_STRING again.
-             * Warning: hope owner not triggered between the 2 requests
-             *          XA_STRING and XA_COMPOUNT_TEXT.
+             * Warning: hope owner not triggered between the 3 requests
+             *          XA_COMPOUNT_TEXT, SA_UTF8_STRING and XA_STRING.
              */
-            if (list->asked) {
-                list->asked = False;
-                XtGetSelectionValue(w, list->selection, XA_STRING,
-                        SelectionReceived, (XtPointer)list, list->time);
+	    if (list->try == TRY_COMPOUND_TEXT) {
+                list->try = TRY_UTF8_STRING;
+		list->ctext = NULL;
+		list->ctext_len = 0;
+                XtGetSelectionValue(w, list->selection,
+				    XA_UTF8_STRING(XtDisplay(w)),
+				    SelectionReceived, (XtPointer)list,
+				    list->time);
+	    } else if (list->try == TRY_UTF8_STRING) {
+		if (list->ctext && list->ctext_len > 0) {
+		    paste_compound_text(w, list->ctext, list->ctext_len);
+		    XtFree(list->ctext);
+		    XtFree(client_data);
+		    return;
+		} else {
+		    list->try = TRY_STRING;
+		    XtGetSelectionValue(w, list->selection,
+					XA_STRING, SelectionReceived,
+					(XtPointer)list, list->time);
+		}
             } else {
                 _GetSelection(w, list->time, list->params, list->count);
-                XtFree(client_data);
+		if (list->ctext) XtFree(list->ctext);
+		if (client_data) XtFree(client_data);
             }
 #else /* !KTERM */
 	    _GetSelection(w, list->time, list->params, list->count);
-	    XtFree(client_data);
 #endif /* !KTERM */
 	}
 	return;
     }
-
 #ifdef KTERM
     if (*type == XA_COMPOUND_TEXT(XtDisplay(w))) {
-	Char *ct = (Char *)value;
-	Ichr *cs;
-	int (*func)();
-	int n;
-	int convCStoJIS();
-# ifdef KTERM_KANJIMODE
-	int convCStoEUC(), convCStoSJIS();
-# endif /* KTERM_KANJIMODE */
-	Ichr cbuf[256 + 1];
-
-	n = convCTtoCS(ct, *length, NULL);
-	if (n < 0) { /* data broken */
-	    XtFree(client_data);
-	    XtFree(value);
+	if (check_ctext_kterm((char*)value, *length)) {
+	    paste_compound_text(w, (Char*)value, *length);
+	} else {
+	    list->try = TRY_UTF8_STRING;
+	    list->ctext = (char *)value;
+	    list->ctext_len =  *length;
+	    XtGetSelectionValue(w, list->selection,
+				XA_UTF8_STRING(XtDisplay(w)),
+				SelectionReceived, (XtPointer)list,
+				list->time);
 	    return;
 	}
-	cs = (n > 256) ? (Ichr *)XtMalloc((n + 1) * sizeof(Ichr)) : cbuf;
-	(void)convCTtoCS(ct, *length, cs);
-
-# ifdef KTERM_KANJIMODE
-	switch (((XtermWidget)w)->flags & (EUC_KANJI|SJIS_KANJI)) {
-	case EUC_KANJI:
-	    func = convCStoEUC;
-	    break;
-	case SJIS_KANJI:
-	    func = convCStoSJIS;
-	    break;
-	default:
-	    func = convCStoJIS;
-	    break;
-	}
-# else /* !KTERM_KANJIMODE */
-	func = convCStoJIS;
-# endif /* !KTERM_KANJIMODE */
-
-	n = (*func)(cs, NULL);
-	line = (n > 256) ? XtMalloc(n + 1) : lbuf;
-	(void)(*func)(cs, line);
-	end = line + n;
-	if (cs != cbuf) XtFree((char *)cs);
-    } else { /* must be XA_STRING */
-	char *p, *q;
-	int n = *length;
-
-	line = (n > 256) ? XtMalloc(n + 1) : lbuf;
-	memmove( line, (char *)value, n);
-	line[n] = '\0';
-	p = (char *) value;
-	q = line;
-	while (n-- > 0) {
-	    if (!(*p & 0x80)) {
-		*q++ = *p;
-	    }
-	    p++;
-	}
-	end = q;
+    } else if (*type == XA_UTF8_STRING(XtDisplay(w))) {
+	paste_utf8_string(w, (Char*)value, *length, list);
+    } else {
+	paste_string(w, (Char*)value, *length);
     }
 #else /* !KTERM */
-    /* Write data to pty a line at a time. */
-    /* Doing this one line at a time may no longer be necessary
-       because v_write has been re-written. */
-
-    end = &line[*length];
+    paste_text(w, (char *)value, (char*)value + *length);
 #endif /* !KTERM */
+
+    if (list && list->ctext) XtFree(list->ctext);
+    if (client_data) XtFree(client_data);
+    if (value) XtFree(value);
+    return;
+}
+
+static void
+paste_compound_text(w, ct, len)
+Widget w;
+Char *ct;
+unsigned long len;
+{
+    Ichr *cs;
+    int n;
+    Ichr cbuf[256 + 1];
+
+    n = convCTtoCS(ct, len, NULL);
+    if (n < 0)
+	return;
+
+    cs = (n > 256) ? (Ichr *)XtMalloc((n + 1) * sizeof(Ichr)) : cbuf;
+    (void)convCTtoCS(ct, len, cs);
+    paste_cs(w, cs);
+
+    if (cs != cbuf) XtFree((char *)cs);
+}
+
+static void
+paste_utf8_string(w, ut, len, list)
+Widget w;
+Char *ut;
+unsigned long len;
+struct _SelectionList* list;
+{
+    Ichr *cs;
+    int n;
+    Ichr cbuf[256 + 1];
+
+# ifdef KTERM_KANJIMODE
+    if (((XtermWidget)w)->flags & UTF8_KANJI) {
+	/* if utf-8 mode, paste original */
+	paste_text(w, ut, ut + len);
+	return;
+    }
+# endif /* !KTERM_KANJIMODE */
+
+    n = convUTF8toCS(ut, len, NULL);
+    if (n <= 0)
+	return;
+
+    cs = (n > 256) ? (Ichr *)XtMalloc((n + 1) * sizeof(Ichr)) : cbuf;
+    (void)convUTF8toCS(ut, len, cs);
+    paste_cs(w, cs);
+
+    if (cs != cbuf) XtFree((char *)cs);
+}
+
+static void
+paste_string(w, str, len)
+Widget w;
+Char *str;
+unsigned long len;
+{
+    Ichr *cs;
+    int n;
+    Ichr cbuf[256 + 1];
+    Char *p;
+    Ichr *q;
+
+    cs = (len > 256) ? (Ichr *)XtMalloc((n + 1) * sizeof(Ichr)) : cbuf;
+
+    p = str;
+    q = cs;
+    while (len-- > 0) {
+	if (!(*p & 0x80)) {
+	    q->gset = GSET_ASCII;
+	} else {
+	    q->gset = GSET_LATIN1R;
+	}
+	q->code = *p ++;
+	q ++;
+    }
+    q->gset = 0;
+    q->code = 0;
+
+    paste_cs(w, cs);
+
+    if (cs != cbuf) XtFree((char *)cs);
+}
+
+static void
+paste_cs(w, cs)
+Widget w;
+Ichr *cs;
+{
+    int n;
+    int convCStoJIS();
+# ifdef KTERM_KANJIMODE
+    int convCStoEUC(), convCStoSJIS(), convCStoUTF8();
+# endif /* KTERM_KANJIMODE */
+    int (*func)();
+    char lbuf[256 + 1];
+    char *line;
+
+# ifdef KTERM_KANJIMODE
+    switch (((XtermWidget)w)->flags & (EUC_KANJI|SJIS_KANJI|UTF8_KANJI)) {
+    case UTF8_KANJI:
+	func = convCStoUTF8;
+	break;
+    case EUC_KANJI:
+	func = convCStoEUC;
+	break;
+    case SJIS_KANJI:
+	func = convCStoSJIS;
+	break;
+    default:
+	func = convCStoJIS;
+	break;
+    }
+# else /* !KTERM_KANJIMODE */
+    func = convCStoJIS;
+# endif /* !KTERM_KANJIMODE */
+
+    n = (*func)(cs, NULL);
+    line = (n > 256) ? XtMalloc(n + 1) : lbuf;
+    (void)(*func)(cs, line);
+    paste_text(w, line, line + n);
+    if (line != lbuf) XtFree(line);
+}
+
+static void
+paste_text(w, line, end)
+Widget w;
+char *line;
+char *end;
+{
+    int pty = ((XtermWidget)w)->screen.respond;	/* file descriptor of pty */
+    register char *lag, *cp;
+
     lag = line;
     for (cp = line; cp != end; cp++)
 	{
@@ -436,12 +556,6 @@ int *format;
 	}
     if (lag != end)
 	v_write(pty, lag, end - lag);
-
-#ifdef KTERM
-    if (line != lbuf) XtFree(line);
-#endif /* KTERM */
-    XtFree(client_data);
-    XtFree(value);
 }
 
 
@@ -1468,8 +1582,8 @@ int *format;
 	*value = (XtPointer)XtMalloc(sizeof(Atom)*(*length));
 	targetP = *(Atom**)value;
 	*targetP++ = XA_STRING;
-	*targetP++ = XA_TEXT(d);
 	*targetP++ = XA_COMPOUND_TEXT(d);
+	*targetP++ = XA_UTF8_STRING(d);
 	*targetP++ = XA_LENGTH(d);
 	*targetP++ = XA_LIST_LENGTH(d);
 	memmove( (char*)targetP, (char*)std_targets, sizeof(Atom)*std_length);
@@ -1481,9 +1595,15 @@ int *format;
 
     if (*target == XA_STRING ||
 	*target == XA_TEXT(d) ||
+	*target == XA_UTF8_STRING(d) ||
 	*target == XA_COMPOUND_TEXT(d)) {
 #ifdef KTERM
-	if (*target == XA_COMPOUND_TEXT(d) || *target == XA_TEXT(d)) {
+	if (*target == XA_UTF8_STRING(d)) {
+	    *type = XA_UTF8_STRING(d);
+	    *length = pasteCStoUTF8(xterm->screen.selection, NULL);
+	    *value = (caddr_t)XtMalloc(*length + 1);
+	    (void)pasteCStoUTF8(xterm->screen.selection, (Char *)*value);
+	} else if (*target == XA_COMPOUND_TEXT(d) || *target == XA_TEXT(d)) {
 	    *type = XA_COMPOUND_TEXT(d);
 	    *length = convCStoCT(xterm->screen.selection, NULL);
 	    *value = (caddr_t)XtMalloc(*length + 1);

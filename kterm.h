@@ -28,10 +28,10 @@
 #ifndef _KTERM_H_
 #define _KTERM_H_
 
-#define KTERM_VERSION	"6.2.0"
+#define KTERM_VERSION	"6.2.0.ext06"
 #define KTERM_MBCS	/* multi-byte character set */
 #define KTERM_MBCC	/* multi-byte character class for word selection */
-#define KTERM_KANJIMODE	/* euc/sjis Kanji modes */
+#define KTERM_KANJIMODE	/* euc/sjis/utf8 Kanji modes */
 #define KTERM_XIM	/* XIM protocol */
 #define KTERM_KINPUT2	/* Kinput2 protocol */
 #define KTERM_COLOR	/* color sequence */

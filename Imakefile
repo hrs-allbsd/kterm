@@ -48,11 +48,11 @@ XCOMM $Id: Imakefile,v 6.3 1996/07/12 05:01:03 kagotani Rel $
 #endif
           SRCS1 = button.c charproc.c cursor.c data.c input.c \
 		  main.c menu.c misc.c screen.c scrollbar.c tabs.c \
-		  util.c VTPrsTbl.c \
+		  util.c VTPrsTbl.c kanji_map.c unicode_map.c \
 		  $(TEKSRCS) gset.c convert.c $(XIMSRCS) $(KINPUT2SRCS)
           OBJS1 = button.o charproc.o cursor.o data.o input.o \
 		  main.o menu.o misc.o screen.o scrollbar.o tabs.o \
-		  util.o VTPrsTbl.o \
+		  util.o VTPrsTbl.o kanji_map.o unicode_map.o \
 		  $(TEKOBJS) gset.o convert.o $(XIMOBJS) $(KINPUT2OBJS)
            SRCS = $(SRCS1)
            OBJS = $(OBJS1)
@@ -78,7 +78,13 @@ AllTarget($(PROGRAMS))
 
 SpecialCObjectRule(main,$(_NOOP_),$(MAIN_DEFINES))
 SpecialCObjectRule(misc,$(_NOOP_),$(MISC_DEFINES))
-SpecialCObjectRule(charproc,$(_NOOP_),$(MISC_DEFINES))
+SpecialCObjectRule(charproc,kfontlist.c,$(MISC_DEFINES))
+
+kfontlist.c: kfontlist.m4 kfontlist.def
+	m4 kfontlist.m4 > kfontlist.c
+
+clean::
+	$(RM) kfontlist.c
 
 #if InstallXtermSetUID
 SetUIDProgramTarget(kterm,$(OBJS1),$(DEPLIBS1),XkbClientLibs XawClientLibs,$(XPMLIB) $(TERMCAPLIB) $(PTYLIB))

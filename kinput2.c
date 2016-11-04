@@ -33,6 +33,7 @@
 extern int	_beginConversionWithAttributes();
 extern void	_changeConversionAttributes();
 extern int	convCTtoCS();
+extern int	convCStoUTF8();
 extern int	convCStoEUC();
 extern int	convCStoSJIS();
 extern int	convCStoJIS();
@@ -171,7 +172,9 @@ caddr_t		client_data;
 		cs = (n > 256) ? (Ichr *)XtMalloc((n+1) * sizeof(Ichr))
 			       : cbuf;
 		(void)convCTtoCS(str, size, cs);
-		if (term->flags & EUC_KANJI)
+		if (term->flags & UTF8_KANJI)
+		    convfunc = convCStoUTF8;
+		else if (term->flags & EUC_KANJI)
 		    convfunc = convCStoEUC;
 		else if (term->flags & SJIS_KANJI)
 		    convfunc = convCStoSJIS;

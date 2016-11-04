@@ -46,7 +46,8 @@ KTerm.JoinSession:False
 *vtMenu*statusline*Label:  Enable Status Line
 *vtMenu*reversestatus*Label:  Status Line Reverse Video
 *vtMenu*eucmode*Label:  Japanese EUC Mode
-*vtMenu*sjismode*Label:  Shift-JIS Mode
+*vtMenu*sjismode*Label:  Shift_JIS Mode
+*vtMenu*utf8mode*Label:  UTF-8 Mode
 *vtMenu*openim*Label:  Open Input Method
 
 *fontMenu.Label:  VT Fonts
@@ -131,3 +132,5 @@ KTerm.JoinSession:False
 *tek4014*font3: 6x13
 *tek4014*fontSmall: 6x10
 
+*VT100*translations: #override  Shift<Key>space: \
+	begin-conversion(_JAPANESE_CONVERSION)

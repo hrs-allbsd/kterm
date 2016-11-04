@@ -84,6 +84,7 @@ SOFTWARE.
 #include "data.h"
 #include "error.h"
 #include "menu.h"
+#include "unicode_map.h"
 #ifdef KEEPALIVE
 #include <sys/socket.h>
 #endif /* KEEPALIVE */
@@ -758,6 +759,38 @@ static XrmOptionDescRec optionDescList[] = {
 #ifdef KTERM_MBCS
 {"-fk",		"*kanjiFont",	XrmoptionSepArg,	(caddr_t) NULL},
 {"-fkb",	"*kanjiBoldFont", XrmoptionSepArg,	(caddr_t) NULL},
+{"-fkB",	"*kanjiFont",   XrmoptionSepArg,	(caddr_t) NULL},
+{"-fkbB",	"*kanjiBoldFont", XrmoptionSepArg,      (caddr_t) NULL},
+{"-fk@",	"*oldKanjiFont", XrmoptionSepArg,	(caddr_t) NULL},
+{"-fkb@",	"*oldKanjiBoldFont", XrmoptionSepArg,	(caddr_t) NULL},
+{"-fk@B",	"*kanji90Font", XrmoptionSepArg,	(caddr_t) NULL},
+{"-fkb@B",	"*kanji90BoldFont", XrmoptionSepArg,	(caddr_t) NULL},
+{"-fkD",	"*hojoKanjiFont", XrmoptionSepArg,	(caddr_t) NULL},
+{"-fkbD",	"*hojoKanjiBoldFont", XrmoptionSepArg,	(caddr_t) NULL},
+{"-fkO",	"*extOneKanjiFont", XrmoptionSepArg,	(caddr_t) NULL},
+{"-fkbO",	"*extOneKanjiBoldFont", XrmoptionSepArg,(caddr_t) NULL},
+{"-fkP",	"*extTwoKanjiFont", XrmoptionSepArg,	(caddr_t) NULL},
+{"-fkbP",	"*extTwoKanjiBoldFont", XrmoptionSepArg,(caddr_t) NULL},
+{"-fkQ",	"*ext2004OneKanjiFont", XrmoptionSepArg,(caddr_t) NULL},
+{"-fkbQ",	"*ext2004OneKanjiBoldFont", XrmoptionSepArg,(caddr_t) NULL},
+{"-fkC",	"*hanglFont", XrmoptionSepArg,		(caddr_t) NULL},
+{"-fkbC",	"*hanglBoldFont", XrmoptionSepArg,	(caddr_t) NULL},
+{"-fkA",	"*hanziFont", XrmoptionSepArg,		(caddr_t) NULL},
+{"-fkbA",	"*hanziBoldFont", XrmoptionSepArg,	(caddr_t) NULL},
+{"-fkG",	"*cnsOneFont", XrmoptionSepArg,		(caddr_t) NULL},
+{"-fkbG",	"*cnsOneBoldFont", XrmoptionSepArg,	(caddr_t) NULL},
+{"-fkH",	"*cnsTwoFont", XrmoptionSepArg,		(caddr_t) NULL},
+{"-fkbH",	"*cnsTwoBoldFont", XrmoptionSepArg,	(caddr_t) NULL},
+{"-fkI",	"*cnsThreeFont", XrmoptionSepArg,	(caddr_t) NULL},
+{"-fkbI",	"*cnsThreeBoldFont", XrmoptionSepArg,	(caddr_t) NULL},
+{"-fkJ",	"*cnsFourFont", XrmoptionSepArg,	(caddr_t) NULL},
+{"-fkbJ",	"*cnsFourBoldFont", XrmoptionSepArg,	(caddr_t) NULL},
+{"-fkK",	"*cnsFiveFont", XrmoptionSepArg,	(caddr_t) NULL},
+{"-fkbK",	"*cnsFiveBoldFont", XrmoptionSepArg,	(caddr_t) NULL},
+{"-fkL",	"*cnsSixFont", XrmoptionSepArg,		(caddr_t) NULL},
+{"-fkbL",	"*cnsSixBoldFont", XrmoptionSepArg,	(caddr_t) NULL},
+{"-fkM",	"*cnsSevenFont", XrmoptionSepArg,	(caddr_t) NULL},
+{"-fkbM",	"*cnsSevenBoldFont", XrmoptionSepArg,	(caddr_t) NULL},
 #endif /* KTERM_MBCS */
 #ifdef KTERM_KANJIMODE
 {"-km",		"*kanjiMode",	XrmoptionSepArg,	(caddr_t) NULL},
@@ -878,11 +911,41 @@ static struct _options {
 { "-fr fontname",          "normal kana font" },
 { "-frb fontname",         "bold kana font" },
 #ifdef KTERM_MBCS
-{ "-fk fontname",          "normal kanji font" },
-{ "-fkb fontname",         "bold kanji font" },
+{ "-fkB fontname",         "normal kanji font" },
+{ "-fkbB fontname",        "bold kanji font" },
+{ "-fk@ fontname",         "normal old kanji font" },
+{ "-fkb@ fontname",        "bold old kanji font" },
+{ "-fk@B fontname",        "normal kanji 1990 font" },
+{ "-fkb@B fontname",       "bold kanji 1990 font" },
+{ "-fkD fontname",         "normal hojo kanji font" },
+{ "-fkbD fontname",        "bold hojo kanji font" },
+{ "-fkO fontname",         "normal extended kanji font 1" },
+{ "-fkbO fontname",        "bold extended kanji font 1" },
+{ "-fkP fontname",         "normal extended kanji font 2" },
+{ "-fkbP fontname",        "bold extended kanji font 2" },
+{ "-fkQ fontname",         "normal extended 2004 kanji font 1" },
+{ "-fkbQ fontname",        "bold extended 2004 kanji font 1" },
+{ "-fkC fontname",         "normal hangl font" },
+{ "-fkbC fontname",        "bold hangl font" },
+{ "-fkA fontname",         "normal hanzi font" },
+{ "-fkbA fontname",        "bold hanzi font" },
+{ "-fkG fontname",         "normal cns font 1" },
+{ "-fkbG fontname",        "bold cns font 1" },
+{ "-fkH fontname",         "normal cns font 2" },
+{ "-fkbH fontname",        "bold cns font 2" },
+{ "-fkI fontname",         "normal cns font 3" },
+{ "-fkbI fontname",        "bold cns font 3" },
+{ "-fkJ fontname",         "normal cns font 4" },
+{ "-fkbJ fontname",        "bold cns font 4" },
+{ "-fkK fontname",         "normal cns font 5" },
+{ "-fkbK fontname",        "bold cns font 5" },
+{ "-fkL fontname",         "normal cns font 6" },
+{ "-fkbL fontname",        "bold cns font 6" },
+{ "-fkM fontname",         "normal cns font 7" },
+{ "-fkbM fontname",        "bold cns font 7" },
 #endif /* KTERM_MBCS */
 #ifdef KTERM_KANJIMODE
-{ "-km kanjimode",         "kanji code (jis|euc|sjis)" },
+{ "-km kanjimode",         "kanji code (jis|euc|sjis|utf8)" },
 #endif /* KTERM_KANJIMODE */
 #ifdef KTERM_XIM
 { "-/+xim",                "open IM at startup time" },
@@ -1648,13 +1711,18 @@ char **argv;
 #ifdef KTERM_KANJIMODE
 	if (term->misc.k_m) {
 	    switch (term->misc.k_m[0]) {
-		case 'e': case 'E': case 'x': case 'X': case 'u': case 'U':
+		case 'e': case 'E': case 'x': case 'X':
 		    term->flags |= EUC_KANJI;
 		    update_eucmode();
 		    break;
 		case 's': case 'S': case 'm': case 'M':
 		    term->flags |= SJIS_KANJI;
 		    update_sjismode();
+		    break;
+	        case 'u': case 'U':
+		    term->flags |= UTF8_KANJI;
+		    update_utf8mode();
+		    make_unicode_map();
 		    break;
 		default:
 		    break;

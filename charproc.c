@@ -79,6 +79,7 @@ in this Software without prior written authorization from the X Consortium.
 #include "error.h"
 #include "menu.h"
 #include "main.h"
+#include "unicode_map.h"
 
 /*
  * Check for both EAGAIN and EWOULDBLOCK, because some supposedly POSIX
@@ -198,6 +199,36 @@ static void bitset(), bitclr();
 #ifdef KTERM
 #define XtNromanKanaFont "romanKanaFont"
 #define XtNromanKanaBoldFont "romanKanaBoldFont"
+#define XtNoldKanjiFont "oldKanjiFont"
+#define XtNoldKanjiBoldFont "oldKanjiBoldFont"
+#define XtNkanji90Font "kanji90Font"
+#define XtNkanji90BoldFont "kanji90BoldFont"
+#define XtNhojoKanjiFont "hojoKanjiFont"
+#define XtNhojoKanjiBoldFont "hojoKanjiBoldFont"
+#define XtNhanziFont "hanziFont"
+#define XtNhanziBoldFont "hanziBoldFont"
+#define XtNhanglFont "hanglFont"
+#define XtNhanglBoldFont "hanglBoldFont"
+#define XtNcnsOneFont   "cnsOneFont"
+#define XtNcnsOneBoldFont   "cnsOneBoldFont"
+#define XtNcnsTwoFont   "cnsTwoFont"
+#define XtNcnsTwoBoldFont   "cnsTwoBoldFont"
+#define XtNcnsThreeFont "cnsThreeFont"
+#define XtNcnsThreeBoldFont "cnsThreeBoldFont"
+#define XtNcnsFourFont  "cnsFourFont"
+#define XtNcnsFourBoldFont  "cnsFourBoldFont"
+#define XtNcnsFiveFont  "cnsFiveFont"
+#define XtNcnsFiveBoldFont  "cnsFiveBoldFont"
+#define XtNcnsSixFont   "cnsSixFont"
+#define XtNcnsSixBoldFont   "cnsSixBoldFont"
+#define XtNcnsSevenFont "cnsSevenFont"
+#define XtNcnsSevenBoldFont "cnsSevenBoldFont"
+#define XtNextOneKanjiFont "extOneKanjiFont"
+#define XtNextOneKanjiBoldFont "extOneKanjiBoldFont"
+#define XtNextTwoKanjiFont "extTwoKanjiFont"
+#define XtNextTwoKanjiBoldFont "extTwoKanjiBoldFont"
+#define XtNext2004OneKanjiFont "ext2004OneKanjiFont"
+#define XtNext2004OneKanjiBoldFont "ext2004OneKanjiBoldFont"
 # ifdef KTERM_MBCS
 #define XtNkanjiFont "kanjiFont"
 #define XtNkanjiBoldFont "kanjiBoldFont"
@@ -287,12 +318,14 @@ extern int iestable[];
 extern int igntable[];
 extern int scrtable[];
 extern int scstable[];
+extern int escversiontable[];
 #ifdef KTERM_MBCS
 extern int mbcstable[];
 extern int smbcstable[];
 static Char pending_byte;
+static int utf_left;
+static int utf_char;
 #endif /* KTERM_MBCS */
-
 
 /* event handlers */
 extern void HandleKeyPressed(), HandleEightBitKeyPressed();
@@ -513,6 +546,96 @@ static XtResource resources[] = {
 	XtRString, (XtPointer) NULL},
 {XtNkanjiBoldFont, XtCKanjiFont, XtRString, sizeof(String),
 	XtOffset(XtermWidget, screen._menu_bfont_names[F_JISX0208_0][fontMenu_fontdefault]),
+	XtRString, (XtPointer) NULL},
+{XtNoldKanjiFont, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_font_names[F_JISC6226_0][fontMenu_fontdefault]),
+	XtRString, (XtPointer) NULL},
+{XtNoldKanjiBoldFont, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_bfont_names[F_JISC6226_0][fontMenu_fontdefault]),
+	XtRString, (XtPointer) NULL},
+{XtNkanji90Font, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_font_names[F_JISX0208_1990_0][fontMenu_fontdefault]),
+	XtRString,(XtPointer) NULL},
+{XtNkanji90BoldFont, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_bfont_names[F_JISX0208_1990_0][fontMenu_fontdefault]),
+	XtRString, (XtPointer) NULL},
+{XtNhojoKanjiFont, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_font_names[F_JISX0212_0][fontMenu_fontdefault]),
+	XtRString, (XtPointer) NULL},
+{XtNhojoKanjiBoldFont, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_bfont_names[F_JISX0212_0][fontMenu_fontdefault]),
+	XtRString, (XtPointer) NULL},
+{XtNhanziFont, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_font_names[F_GB2312_0][fontMenu_fontdefault]),
+	XtRString, (XtPointer) NULL},
+{XtNhanziBoldFont, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_bfont_names[F_GB2312_0][fontMenu_fontdefault]),
+	XtRString, (XtPointer) NULL},
+{XtNhanglFont, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_font_names[F_KSC5601_0][fontMenu_fontdefault]),
+	XtRString, (XtPointer) NULL},
+{XtNhanglBoldFont, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_bfont_names[F_KSC5601_0][fontMenu_fontdefault]),
+	XtRString, (XtPointer) NULL},
+{XtNcnsOneFont, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_font_names[F_CNS11643_1][fontMenu_fontdefault]),
+	XtRString, (XtPointer) NULL},
+{XtNcnsOneBoldFont, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_bfont_names[F_CNS11643_1][fontMenu_fontdefault]),
+	XtRString, (XtPointer) NULL},
+{XtNcnsTwoFont, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_font_names[F_CNS11643_2][fontMenu_fontdefault]),
+	XtRString, (XtPointer) NULL},
+{XtNcnsTwoBoldFont, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_bfont_names[F_CNS11643_2][fontMenu_fontdefault]),
+	XtRString, (XtPointer) NULL},
+{XtNcnsThreeFont, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_font_names[F_CNS11643_3][fontMenu_fontdefault]),
+	XtRString, (XtPointer) NULL},
+{XtNcnsThreeBoldFont, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_bfont_names[F_CNS11643_3][fontMenu_fontdefault]),
+	XtRString, (XtPointer) NULL},
+{XtNcnsFourFont, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_font_names[F_CNS11643_4][fontMenu_fontdefault]),
+	XtRString, (XtPointer) NULL},
+{XtNcnsFourBoldFont, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_bfont_names[F_CNS11643_4][fontMenu_fontdefault]),
+	XtRString, (XtPointer) NULL},
+{XtNcnsFiveFont, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_font_names[F_CNS11643_5][fontMenu_fontdefault]),
+	XtRString, (XtPointer) NULL},
+{XtNcnsFiveBoldFont, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_bfont_names[F_CNS11643_5][fontMenu_fontdefault]),
+	XtRString, (XtPointer) NULL},
+{XtNcnsSixFont, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_font_names[F_CNS11643_6][fontMenu_fontdefault]),
+	XtRString, (XtPointer) NULL},
+{XtNcnsSixBoldFont, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_bfont_names[F_CNS11643_6][fontMenu_fontdefault]),
+	XtRString, (XtPointer) NULL},
+{XtNcnsSevenFont, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_font_names[F_CNS11643_7][fontMenu_fontdefault]),
+	XtRString, (XtPointer) NULL},
+{XtNcnsSevenBoldFont, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_bfont_names[F_CNS11643_7][fontMenu_fontdefault]),
+	XtRString, (XtPointer) NULL},
+{XtNextOneKanjiFont, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_font_names[F_JISX0213_1][fontMenu_fontdefault]),
+	XtRString, (XtPointer) NULL},
+{XtNextOneKanjiBoldFont, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_bfont_names[F_JISX0213_1][fontMenu_fontdefault]),
+	XtRString, (XtPointer) NULL},
+{XtNextTwoKanjiFont, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_font_names[F_JISX0213_2][fontMenu_fontdefault]),
+	XtRString, (XtPointer) NULL},
+{XtNextTwoKanjiBoldFont, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_bfont_names[F_JISX0213_2][fontMenu_fontdefault]),
+	XtRString, (XtPointer) NULL},
+{XtNext2004OneKanjiFont, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_font_names[F_JISX0213_2004_1][fontMenu_fontdefault]),
+	XtRString, (XtPointer) NULL},
+{XtNext2004OneKanjiBoldFont, XtCKanjiFont, XtRString, sizeof(String),
+	XtOffset(XtermWidget, screen._menu_bfont_names[F_JISX0213_2004_1][fontMenu_fontdefault]),
 	XtRString, (XtPointer) NULL},
 #  endif /* KTERM_MBCS */
 #  ifdef KTERM_KANJIMODE
@@ -849,42 +972,7 @@ static XtResource resources[] = {
 	XtOffsetOf(XtermWidgetRec, screen._menu_bfont_names[F_JISX0201_0][fontMenu_font6]),
 	XtRString, (XtPointer) NULL},
 # ifdef KTERM_MBCS
-{"kanjiFont1", "KanjiFont1", XtRString, sizeof(String),
-	XtOffsetOf(XtermWidgetRec, screen._menu_font_names[F_JISX0208_0][fontMenu_font1]),
-	XtRString, (XtPointer) NULL},
-{"kanjiFont2", "KanjiFont2", XtRString, sizeof(String),
-	XtOffsetOf(XtermWidgetRec, screen._menu_font_names[F_JISX0208_0][fontMenu_font2]),
-	XtRString, (XtPointer) NULL},
-{"kanjiFont3", "KanjiFont3", XtRString, sizeof(String),
-	XtOffsetOf(XtermWidgetRec, screen._menu_font_names[F_JISX0208_0][fontMenu_font3]),
-	XtRString, (XtPointer) NULL},
-{"kanjiFont4", "KanjiFont4", XtRString, sizeof(String),
-	XtOffsetOf(XtermWidgetRec, screen._menu_font_names[F_JISX0208_0][fontMenu_font4]),
-	XtRString, (XtPointer) NULL},
-{"kanjiFont5", "KanjiFont5", XtRString, sizeof(String),
-	XtOffsetOf(XtermWidgetRec, screen._menu_font_names[F_JISX0208_0][fontMenu_font5]),
-	XtRString, (XtPointer) NULL},
-{"kanjiFont6", "KanjiFont6", XtRString, sizeof(String),
-	XtOffsetOf(XtermWidgetRec, screen._menu_font_names[F_JISX0208_0][fontMenu_font6]),
-	XtRString, (XtPointer) NULL},
-{"kanjiBoldFont1", "KanjiBoldFont1", XtRString, sizeof(String),
-	XtOffsetOf(XtermWidgetRec, screen._menu_bfont_names[F_JISX0208_0][fontMenu_font1]),
-	XtRString, (XtPointer) NULL},
-{"kanjiBoldFont2", "KanjiBoldFont2", XtRString, sizeof(String),
-	XtOffsetOf(XtermWidgetRec, screen._menu_bfont_names[F_JISX0208_0][fontMenu_font2]),
-	XtRString, (XtPointer) NULL},
-{"kanjiBoldFont3", "KanjiBoldFont3", XtRString, sizeof(String),
-	XtOffsetOf(XtermWidgetRec, screen._menu_bfont_names[F_JISX0208_0][fontMenu_font3]),
-	XtRString, (XtPointer) NULL},
-{"kanjiBoldFont4", "KanjiBoldFont4", XtRString, sizeof(String),
-	XtOffsetOf(XtermWidgetRec, screen._menu_bfont_names[F_JISX0208_0][fontMenu_font4]),
-	XtRString, (XtPointer) NULL},
-{"kanjiBoldFont5", "KanjiBoldFont5", XtRString, sizeof(String),
-	XtOffsetOf(XtermWidgetRec, screen._menu_bfont_names[F_JISX0208_0][fontMenu_font5]),
-	XtRString, (XtPointer) NULL},
-{"kanjiBoldFont6", "KanjiBoldFont6", XtRString, sizeof(String),
-	XtOffsetOf(XtermWidgetRec, screen._menu_bfont_names[F_JISX0208_0][fontMenu_font6]),
-	XtRString, (XtPointer) NULL},
+# include "kfontlist.c"
 # endif /* KTERM_MBCS */
 #else /* !KTERM */
 {"font1", "Font1", XtRString, sizeof(String),
@@ -1138,7 +1226,116 @@ short gset;
 }
 
 # ifdef KTERM_KANJIMODE
-doSJIS()
+int isJISX0208_1990();
+int isJISX0213_1();
+int isJISX0213_2();
+int isJISX0213_2004_1();
+int check_combined();
+
+doUTF8()
+{
+	Char dotextbuf[TEXT_BUF_SIZE];
+        register Char c, c1, c2;
+        register Char *cp = bptr;
+        register Char *dcp = dotextbuf;
+        register int cnt = bcnt > TEXT_BUF_SIZE ? TEXT_BUF_SIZE : bcnt;
+	int do_next = 0;
+	int gset;
+	int offset;
+
+# define UTF8_Head(c) ((c) >= 0xc0 && (c) <= 0xfd)
+# define UTF8_Tail(c) ((c) >= 0x80 && (c) <= 0xbf)
+	while (cnt > 0) {
+		c = *cp;
+		if (UTF8_Head(c)) {
+			cnt--;
+			cp++;
+			if (c <= 0xdf) {
+				utf_char = c & 0x1f;
+				utf_left = 1;
+			} else if (c <= 0xef) {
+				utf_char = c & 0xf;
+				utf_left = 2;
+			} else if (c <= 0xf7) {
+				utf_char = c & 0x7;
+				utf_left = 3;
+			} else if (c <= 0xfb) {
+				utf_char = c & 0x3;
+				utf_left = 4;
+			} else if (c <= 0xfd) {
+				utf_char = c & 0x1;
+				utf_left = 5;
+			}
+		} else if (UTF8_Tail(c)) {
+			cnt--;
+			cp++;
+			if (utf_left > 0) {
+				utf_left --;
+				utf_char = (utf_char << 6) | (c & 0x3f);
+			} else {
+				/*
+				 * Invalid UTF-8 Character. Skip it.
+				 */
+				break;
+			}
+		} else {
+			break;
+		}
+		if (utf_left == 0) {
+			int n;
+			int umap;
+			int plane = (utf_char & 0x7fff0000) >> 16;
+			int code  = utf_char & 0xffff;
+
+			n = check_combined(utf_char, cp, cnt, &umap);
+			if (n) {
+				cp += n;
+				cnt -= n;
+			} else if (plane == 0) {
+				umap = unicode0_map[code];
+			} else if (plane == 2) {
+				umap = unicode2_map[code];
+			} else {
+				/* skip char */
+				continue;
+			}
+			if (umap == U_error)
+				continue;
+
+			gset = UMAP_GSET(umap);
+			offset = UMAP_CHAR(umap);
+			c1 = offset / 94 + 0x21;
+			c2 = offset % 94 + 0x21;
+			if (gset != GSET_KANJI) {
+				do_next = gset;
+				break;
+			}
+
+			/* copy to buffer */
+			*dcp++ = c1;
+			*dcp++ = c2;
+		}
+	}
+	dotext(&term->screen, term->flags, GSET_KANJI, dotextbuf, dcp);
+	if (do_next) {
+		if (do_next & MBCS) {
+			dcp = dotextbuf;
+			*dcp++ = c1;
+			*dcp++ = c2;
+			dotext(&term->screen, term->flags, do_next,
+			       dotextbuf, dcp);
+		} else {
+			dcp = dotextbuf;
+			*dcp++ = offset;
+			dotext(&term->screen, term->flags, do_next,
+			       dotextbuf, dcp);
+		}
+        }
+        bcnt -= cp - bptr;
+        bptr = cp;
+}
+
+doSJIS_p1()
 {
 	Char dotextbuf[TEXT_BUF_SIZE];
 	register Char c1, c2;
@@ -1146,9 +1343,10 @@ doSJIS()
 	register Char *dcp = dotextbuf;
 	register int cnt = bcnt > TEXT_BUF_SIZE ? TEXT_BUF_SIZE : bcnt;
 				/* TEXT_BUF_SIZE must be an even number */
+	int do_next = 0;
 
-#  define SJIS1(c) ((0x81 <= c && c <= 0x9F) || (0xE0 <= c && c <= 0xEF))
-#  define SJIS2(c) (0x40 <= c && c <= 0xFC && c != 0x7F)
+#  define SJIS1(c) ((0x81 <= (c) && (c) <= 0x9F) || (0xE0 <= (c) && (c) <= 0xEF))
+#  define SJIS2(c) (0x40 <= (c) && (c) <= 0xFC && (c) != 0x7F)
 	while (cnt > 0) {
 		/* first byte */
 		c1 = *cp;
@@ -1180,14 +1378,172 @@ doSJIS()
 		if (c2 <= 0x7e)	     c2 -= 0x1f;
 		else if (c2 <= 0x9e) c2 -= 0x20;
 		else		     c2 -= 0x7e, c1 += 1;
+
+		if (isJISX0213_2004_1(c1, c2)) {
+			do_next = GSET_EXTKANJI2004_1;
+			break;
+		} else if (isJISX0213_1(c1, c2)) {
+			do_next = GSET_EXTKANJI1;
+			break;
+		} else if (isJISX0208_1990(c1, c2)) {
+			do_next = GSET_90KANJI;
+			break;
+		}
 		/* copy to buffer */
 		*dcp++ = c1;
 		*dcp++ = c2;
 	}
 	dotext(&term->screen, term->flags, GSET_KANJI, dotextbuf, dcp);
+	if (do_next) {
+		dcp = dotextbuf;
+		*dcp++ = c1;
+		*dcp++ = c2;
+		dotext(&term->screen, term->flags, do_next, dotextbuf, dcp);
+	}
 	bcnt -= cp - bptr;
 	bptr = cp;
 }
+
+doSJIS_p2()
+{
+	Char dotextbuf[TEXT_BUF_SIZE];
+	register Char c1, c2;
+	register Char *cp = bptr;
+	register Char *dcp = dotextbuf;
+	register int cnt = bcnt > TEXT_BUF_SIZE ? TEXT_BUF_SIZE : bcnt;
+				/* TEXT_BUF_SIZE must be an even number */
+
+#  define SJIS3(c) (0xF0 <= (c) && (c) <= 0xFC)
+	while (cnt > 0) {
+		/* first byte */
+		c1 = *cp;
+		if (!SJIS3(c1))
+			break;
+		cnt--;
+		cp++;
+		if (cnt == 0) { /* must be (bcnt == cp-bptr) */
+			/*
+			 * Incomplete multi-byte character.
+			 * Preserve and skip its first byte.
+			 */
+			pending_byte = c1;
+			break;
+		}
+		/* second byte */
+		c2 = *cp;
+		if (!SJIS2(c2)) {
+			/*
+			 * Illegal shift-jis character. Skip it.
+			 */
+			break;
+		}
+		cnt--;
+		cp++;
+
+		/* SJIS to JIS code conversion */
+		if (c1 == 0xf0)
+			if (c2 <= 0x9e) c1 = 0x21;
+			else            c1 = 0x27;
+		else if (c1 == 0xf1)
+			                c1 = 0x23;
+		else if (c1 == 0xf2)
+			if (c2 <= 0x9e) c1 = 0x25;
+			else            c1 = 0x2b;
+		else if (c1 == 0xf3)
+			                c1 = 0x2d;
+		else if (c1 == 0xf4)
+			if (c2 <= 0x9e) c1 = 0x2f;
+			else            c1 = 0x6d;
+		else c1 = (c1 - 0xf5) * 2 + 0x6f;
+		if (c2 <= 0x7e)	     c2 -= 0x1f;
+		else if (c2 <= 0x9e) c2 -= 0x20;
+		else		     c2 -= 0x7e, c1 += 1;
+
+		/* copy to buffer */
+		*dcp++ = c1;
+		*dcp++ = c2;
+	}
+	dotext(&term->screen, term->flags, GSET_EXTKANJI2, dotextbuf, dcp);
+	bcnt -= cp - bptr;
+	bptr = cp;
+}
+
+doEUC_p1()
+{
+	Char dotextbuf[TEXT_BUF_SIZE];
+	register Char c1, c2;
+	register Char *cp = bptr;
+	register Char *dcp = dotextbuf;
+	register int cnt = bcnt > TEXT_BUF_SIZE ? TEXT_BUF_SIZE : bcnt;
+				/* TEXT_BUF_SIZE must be an even number */
+	int do_next = 0;
+
+#  define EUC(c) ((0xA1 <= (c) && (c) <= 0xFE))
+	while (cnt > 0) {
+		/* first byte */
+		c1 = *cp;
+		if (!EUC(c1))
+			break;
+		cnt--;
+		cp++;
+		if (cnt == 0) {
+			pending_byte = c1;
+			break;
+		}
+		/* second byte */
+		c2 = *cp;
+		if (!EUC(c2)) {
+			break;
+		}
+
+		/* check JIS X 0213 */
+		if (isJISX0213_2004_1(c1, c2)) {
+			cnt ++;
+			cp --;
+			do_next = GSET_EXTKANJI2004_1;
+			break;
+		} else if (isJISX0213_1(c1, c2)) {
+			cnt ++;
+			cp --;
+			do_next = GSET_EXTKANJI1;
+			break;
+		} else if (isJISX0208_1990(c1, c2)) {
+			cnt ++;
+			cp --;
+			do_next = GSET_90KANJI;
+			break;
+		}
+		cnt--;
+		cp++;
+
+		/* copy to buffer */
+		*dcp++ = c1 & 0x7f;
+		*dcp++ = c2 & 0x7f;
+	}
+	dotext(&term->screen, term->flags, GSET_KANJI, dotextbuf, dcp);
+	bcnt -= cp - bptr;
+	bptr = cp;
+
+	if (do_next) {
+		doSS(do_next);
+	}
+}
+
+doEUC_p2()
+{
+	Char dotextbuf[TEXT_BUF_SIZE];
+	register Char c1, c2;
+	register Char *cp = bptr;
+
+	c1 = cp[0];
+	c2 = cp[1];
+	if (EUC(c1) && EUC(c2) && isJISX0213_2(c1, c2)) {
+		doSS(GSET_EXTKANJI2);
+	} else {
+		doSS(GSET_HOJOKANJI);
+	}
+}
+
 # endif /* KTERM_KANJIMODE */
 #endif /* KTERM */
 
@@ -1203,6 +1559,7 @@ static void VTparse()
 	Char cs96;
 # ifdef KTERM_MBCS
 	Char mbcs;
+	int gsetversion = 0;
 # endif /* KTERM_MBCS */
 #endif /* KTERM */
 	extern int TrackMouse();
@@ -1211,6 +1568,8 @@ static void VTparse()
 		parsestate = groundtable;
 #ifdef KTERM_MBCS
 	pending_byte = 0;
+	utf_left = 0;
+	utf_char = 0;
 #endif /* KTERM_MBCS */
 	for( ; ; ) {
 #ifdef KTERM
@@ -1229,10 +1588,47 @@ static void VTparse()
 #endif /* KTERM */
 #ifdef KTERM_KANJIMODE
 	        c = doinput();
+		if (term->flags & UTF8_KANJI) {
+			if (UTF8_Head(c) || UTF8_Tail(c)) {
+				bcnt++;
+				*--bptr = c;
+				doUTF8();
+				screen->curss = 0;
+				continue;
+			} else {
+				utf_left = 0;
+				utf_char = 0;
+			}
+		}
+		if (term->flags & EUC_KANJI && EUC(c)
+		    && screen->curss == 0 
+		    && screen->gsets[1] == GSET_KANJI) {
+			bcnt ++;
+			*--bptr = c;
+			doEUC_p1();
+			continue;
+		}
+		if (term->flags & EUC_KANJI && EUC(c)
+		    && screen->curss == 3 
+		    && screen->gsets[3] == GSET_HOJOKANJI) {
+			bcnt ++;
+			*--bptr = c;
+			doEUC_p2();
+			if (pending_byte == 0)
+				screen->curss = 0;
+			continue;
+		}
 		if (term->flags & SJIS_KANJI && SJIS1(c)) {
 			bcnt++;
 			*--bptr = c;
-			doSJIS();
+			doSJIS_p1();
+			screen->curss = 0;
+			continue;
+		}
+		if (term->flags & SJIS_KANJI && SJIS3(c)) {
+			bcnt++;
+			*--bptr = c;
+			doSJIS_p2();
 			screen->curss = 0;
 			continue;
 		}
@@ -1279,6 +1675,13 @@ static void VTparse()
 
 		 case CASE_GROUND_STATE:
 			/* exit ignore mode */
+#ifdef KTERM
+			cs96 = 0;
+#ifdef KTERM_MBCS
+			mbcs = 0;
+			gsetversion = 0;
+#endif /* KTERM_MBCS */
+#endif /* KTERM */
 			parsestate = groundtable;
 			break;
 
@@ -1364,6 +1767,16 @@ static void VTparse()
 			scstype = 0; /* for ESC-$-F */
 			parsestate = mbcstable;
 			break;
+
+		case CASE_GSET_VERSION_STATE:
+			parsestate = escversiontable;
+			break;
+
+		case CASE_GSET_VERSION:
+			gsetversion = c;
+			parsestate = groundtable;
+			break;
+
 #endif /* KTERM_MBCS */
 
 #ifdef KTERM
@@ -1410,6 +1823,12 @@ static void VTparse()
 
 		 case CASE_ESC_IGNORE:
 			/* unknown escape sequence */
+#ifdef KTERM
+			cs96 = 0;
+#ifdef KTERM_MBCS
+			mbcs = 0;
+#endif /* KTERM_MBCS */
+#endif /* KTERM */
 			parsestate = eigtable;
 			break;
 
@@ -1809,8 +2228,24 @@ static void VTparse()
 
 		 case CASE_GSETS:
 #ifdef KTERM
+			if (c == '0' && !cs96
+# ifdef KTERM_MBCS
+			    && !mbcs
+# endif
+			    ) { /* hack for ESC ( 0 */
+				c = '@' - 1;
+				cs96 = CS96;
+			}
 # ifdef KTERM_MBCS
 			screen->gsets[scstype] = GSET(c) | cs96 | mbcs;
+			if (gsetversion) {
+				if (screen->gsets[scstype] == GSET_KANJI) {
+					if (gsetversion == '@'){
+						screen->gsets[scstype] = GSET_90KANJI;
+					}
+				}
+				gsetversion = 0;
+			}
 # else /* !KTERM_MBCS */
 			screen->gsets[scstype] = GSET(c) | cs96;
 # endif /* !KTERM_MBCS */
@@ -2012,7 +2447,6 @@ static char *v_buffer;		/* pointer to physical buffer */
 static char *v_bufstr = NULL;	/* beginning of area to write */
 static char *v_bufptr;		/* end of area to write */
 static char *v_bufend;		/* end of physical buffer */
-#define	ptymask()	(v_bufptr > v_bufstr ? pty_mask : 0)
 
 /* Write data to the pty as typed by the user, pasted with the mouse,
    or generated by us in response to a query ESC sequence. */
@@ -3332,7 +3766,24 @@ static void VTInitialize (wrequest, wnew, args, num_args)
 #ifdef KTERM
    new->screen.dynamic_font_load = request->screen.dynamic_font_load;
    for (fnum = F_ISO8859_1; fnum < FCNT; fnum++) {
-    if (fnum == F_ISO8859_1 || fnum == F_JISX0201_0 || fnum == F_JISX0208_0) {
+     if (fnum == F_ISO8859_1 
+	 || fnum == F_JISX0201_0 
+	 || fnum == F_JISX0208_0
+	 || fnum == F_JISC6226_0
+	 || fnum == F_JISX0208_1990_0
+	 || fnum == F_JISX0212_0
+	 || fnum == F_GB2312_0
+	 || fnum == F_KSC5601_0
+	 || fnum == F_CNS11643_1
+	 || fnum == F_CNS11643_2
+	 || fnum == F_CNS11643_3
+	 || fnum == F_CNS11643_4
+	 || fnum == F_CNS11643_5
+	 || fnum == F_CNS11643_6
+	 || fnum == F_CNS11643_7
+	 || fnum == F_JISX0213_1
+	 || fnum == F_JISX0213_2
+	 || fnum == F_JISX0213_2004_1 ) {
      for (i = fontMenu_fontdefault; i <= fontMenu_lastBuiltin; i++) {
        new->screen.menu_font_names[i] = request->screen.menu_font_names[i];
        new->screen.menu_bfont_names[i] = request->screen.menu_bfont_names[i];
@@ -3605,7 +4056,8 @@ static void VTRealize (w, valuemask, values)
 	setupgset();
 	screen->gsets[0] = GSET_ASCII;
 # ifdef KTERM_KANJIMODE
-	screen->gsets[1] = (term->flags & EUC_KANJI) ? GSET_KANJI : GSET_KANA;
+	screen->gsets[1] = (term->flags & EUC_KANJI) ? GSET_KANJI : 
+		(term->flags & SJIS_KANJI) ? GSET_KANA : GSET_LATIN1R;
 	screen->gsets[2] = (term->flags & EUC_KANJI) ? GSET_KANA : GSET_ASCII;
 	screen->gsets[3] = (term->flags & EUC_KANJI) ? GSET_HOJOKANJI : GSET_ASCII;
 # else /* !KTERM_KANJIMODE */
@@ -4180,7 +4632,9 @@ VTReset(full)
 		screen->gsets[0] = GSET_ASCII;
 # ifdef KTERM_KANJIMODE
 		screen->gsets[1] = (term->flags & EUC_KANJI)
-					? GSET_KANJI : GSET_KANA;
+					? GSET_KANJI 
+					: (term->flags & SJIS_KANJI)
+						? GSET_KANA : GSET_LATIN1R;
 		screen->gsets[2] = (term->flags & EUC_KANJI)
 					? GSET_KANA : GSET_ASCII;
 		screen->gsets[3] = (term->flags & EUC_KANJI)
@@ -4211,6 +4665,9 @@ VTReset(full)
 			ReverseVideo(term);
 
 		term->flags = term->initflags;
+		update_eucmode();
+		update_sjismode();
+		update_utf8mode();
 		update_reversevideo();
 		update_autowrap();
 		update_reversewrap();

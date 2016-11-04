@@ -65,17 +65,51 @@ release may use the following character sets:
 .br
 "iso8859-9",
 .br
+"iso8859-10",
+.br
+"iso8859-11",
+.br
+"iso8859-13",
+.br
+"iso8859-14",
+.br
+"iso8859-15",
+.br
+"iso8859-16",
+.br
 "jisx0201.1976-0",
 .br
-"jisx0208.1990-0" or "jisx0208.1983-0",
+"jisc6226.1978-0",
+.br
+"jisx0208.1983-0",
+.br
+"jisx0208.1990-0",
 .br
 "jisx0212.1990-0",
 .br
+"jisx0213.2000-1",
+.br
+"jisx0213.2000-2",
+.br
+"jisx0213.2004-1",
+.br
+"ksc5601.1987-0",
+.br
 "gb2312.1980-0",
 .br
-"ksc5601.1987-0", and
+"cns11643.1992-1",
 .br
-"jisc6226.1978-0" or "jisx0208.1983-0".
+"cns11643.1992-2",
+.br
+"cns11643.1992-3",
+.br
+"cns11643.1992-4",
+.br
+"cns11643.1992-5",
+.br
+"cns11643.1992-6", and
+.br
+"cns11643.1992-7".
 .TP 8
 .BI \-fn " iso8859/1-font"
 This option specifies a normal (non-bold) ISO8859/1 font to be used
@@ -87,19 +121,113 @@ This option specifies a normal JISX0201 font.  This font must have
 same height and width as the ISO8859/1 font.  If it is not specified,
 \fIfontlist\fP is used.
 .TP 8
-.BI \-fk " kanji-font"
-This option specifies a normal JISX0208 font to be used when
+.BI \-fkB " kanji-font"
+This option specifies a normal JISX0208-1983 font to be used when
 displaying Kanji text.  This font must have same height and twice
 width as the ISO8859/1 font.  If it is not specified, \fIfontlist\fP
 is used.
+.TP 8
+.BI \-fk@ " old-kanji-font"
+This option specifies a normal JISC6226-1978 font to be used when
+displaying Kanji text.  This font must have same height and twice
+width as the ISO8859/1 font.  If it is not specified, \fIfontlist\fP
+is used.
+.TP 8
+.BI \-fk@B " 1990-kanji-font"
+This option specifies a normal JISX0208-1990 font to be used when
+displaying Kanji text.  This font must have same height and twice
+width as the ISO8859/1 font.  If it is not specified, \fIfontlist\fP
+is used.
+.TP 8
+.BI \-fkD " hojo-kanji-font"
+This option specifies a JISX0212-1990 font text
+to be used when displaying supplementary Kanji.
+.TP 8
+.BI \-fkO " extended-kanji-font-1"
+This option specifies a JISX0213-2000-1 font text
+to be used when displaying extended Kanji plain 1(3rd level).
+.TP 8
+.BI \-fkP " extended-kanji-font-2"
+This option specifies a JISX0213-2000-2 font text
+to be used when displaying extended Kanji plain 2(4th level).
+.TP 8
+.BI \-fkQ " extended-2004-kanji-font-1"
+This option specifies a JISX0213-2004-1 font text
+to be used when displaying extended (2004 version) Kanji plain 1(3rd level).
+.TP 8
+.BI \-fkC " hangl-font"
+This option specifies a KSC5601-1987 font text
+to be used when displaying Hangl text.
+.TP 8
+.BI \-fkA " hanzi-font"
+This option specifies a GB2312-1980 font text
+to be used when displaying Hanzi text.
+.TP 8
+.BI \-fkG " cns-font-1"
+This option specifies a CNS11643-1992-1 font text
+to be used when displaying Taiwanese text.
+.TP 8
+.BI \-fkH " cns-font-2"
+This option specifies a CNS11643-1992-2 font text
+to be used when displaying Taiwanese text.
+.TP 8
+.BI \-fkI " cns-font-3"
+This option specifies a CNS11643-1992-3 font text
+to be used when displaying Taiwanese text.
+.TP 8
+.BI \-fkJ " cns-font-4"
+This option specifies a CNS11643-1992-4 font text
+to be used when displaying Taiwanese text.
+.TP 8
+.BI \-fkK " cns-font-5"
+This option specifies a CNS11643-1992-5 font text
+to be used when displaying Taiwanese text.
+.TP 8
+.BI \-fkL " cns-font-6"
+This option specifies a CNS11643-1992-6 font text
+to be used when displaying Taiwanese text.
+.TP 8
+.BI \-fkM " cns-font-7"
+This option specifies a CNS11643-1992-7 font text
+to be used when displaying Taiwanese text.
 .TP
 .BI \-flb " bold-fontlist"
-.TP
+.TP 8
 .BI \-fb " bold-font"
-.TP
+.TP 8
 .BI \-frb " roman-kana-bold-font"
 .TP 8
-.BI \-fkb " kanji-bold-font"
+.BI \-fkbB " kanji-bold-font"
+.TP 8
+.BI \-fkb@ " old-kanji-bold-font"
+.TP 8
+.BI \-fkb@B " 1990-kanji-bold-font"
+.TP 8
+.BI \-fkbD " hojo-kanji-bold-font"
+.TP 8
+.BI \-fkbO " extended-kanji-bold-font-1"
+.TP 8
+.BI \-fkbP " extended-kanji-bold-font-2"
+.TP 8
+.BI \-fkbQ " extended-2004-kanji-bold-font-1"
+.TP 8
+.BI \-fkbC " hangl-bold-font"
+.TP 8
+.BI \-fkbA " hanzi-bold-font"
+.TP 8
+.BI \-fkbG " cns-bold-font-1"
+.TP 8
+.BI \-fkbH " cns-bold-font-2"
+.TP 8
+.BI \-fkbI " cns-bold-font-3"
+.TP 8
+.BI \-fkbJ " cns-bold-font-4"
+.TP 8
+.BI \-fkbK " cns-bold-font-5"
+.TP 8
+.BI \-fkbL " cns-bold-font-6"
+.TP 8
+.BI \-fkbM " cns-bold-font-7"
 These options specify bold fonts.
 .TP 8
 .BI \-lsp " dots"
@@ -118,7 +246,9 @@ server without KEEPALIVE socket option.
 This option specifies the Kanji code from/to the pty.  If kanji-mode
 is ``euc'', then it assumes the input/output is coded by Japanese EUC.
 If kanji-mode is ``sjis'', then it assumes the input/output is coded
-by Shift-JIS code (which is the same as Microsoft Kanji code).
+by Shift_JIS code (which is the same as Microsoft Kanji code). If
+kanji-mode is ``utf-8'', then it assumes the input/output is coded by
+UTF-8.
 .TP 8
 .B \-sn
 By default, the status line is in reverse-video (relative to the rest

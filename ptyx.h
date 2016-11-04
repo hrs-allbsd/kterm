@@ -680,6 +680,7 @@ typedef struct _TekWidgetRec {
 #ifdef KTERM_KANJIMODE
 #define	EUC_KANJI	0x4000000	/* true if in EUC mode */
 #define	SJIS_KANJI	0x8000000	/* true if in SJIS mode */
+#define UTF8_KANJI      0x10000000      /* true if in UTF8 mode */
 #endif /* KTERM_KANJIMODE */
 #else /* !KTERM */
 #define WRAPAROUND	0x400	/* true if auto wraparound mode */

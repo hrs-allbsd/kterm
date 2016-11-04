@@ -179,6 +179,7 @@ Input (keyboard, screen, event, eightbit)
 		  unparseputc(*string, pty);
 		} else {
 			extern int convEUCtoJIS(), convEUCtoSJIS();
+			extern int convEUCtoUTF8();
 			extern XtermWidget term;
 			Char outbuf[STRBUFSIZE];
 			Char *obuf, *optr;
@@ -187,7 +188,9 @@ Input (keyboard, screen, event, eightbit)
 				while (nbytes-- > 0)
 					unparseputc(*string++, pty);
 			} else {
-				if (term->flags & SJIS_KANJI) {
+				if (term->flags & UTF8_KANJI) {
+					func = convEUCtoUTF8;
+				} else if (term->flags & SJIS_KANJI) {
 					func = convEUCtoSJIS;
 				} else {
 					func = convEUCtoJIS;
