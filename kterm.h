@@ -37,5 +37,6 @@
 #define KTERM_COLOR	/* color sequence */
 #define KTERM_NOTEK	/* disables Tektronix emulation */
 #undef  KTERM_XAW3D	/* Xaw3d -DARROW_SCROLLBAR support */
+#define COLOR_16	/* 16 palets, BOLD means hilight */
 
 #endif /* !_KTERM_H_ */
