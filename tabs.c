@@ -1,8 +1,35 @@
-/*
- *	$XConsortium: tabs.c,v 1.4 91/05/06 17:12:18 gildea Exp $
- */
+/* $XTermId: tabs.c,v 1.43 2012/06/10 16:53:59 tom Exp $ */
 
 /*
+ * Copyright 2000-2011,2012 by Thomas E. Dickey
+ *
+ *                         All Rights Reserved
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE ABOVE LISTED COPYRIGHT HOLDER(S) BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Except as contained in this notice, the name(s) of the above copyright
+ * holders shall not be used in advertising or otherwise to promote the
+ * sale, use or other dealings in this Software without prior written
+ * authorization.
+ *
+ *
  * Copyright 1987 by Digital Equipment Corporation, Maynard, Massachusetts.
  *
  *                         All Rights Reserved
@@ -27,47 +54,50 @@
 
 /* tabs.c */
 
-#include "ptyx.h"
+#include <xterm.h>
+#include <data.h>
 
-/*
- * This file presumes 32bits/word.  This is somewhat of a crock, and should
- * be fixed sometime.
- */
+#define TAB_INDEX(n) ((n) >> TAB_BITS_SHIFT)
+#define TAB_MASK(n)  (1 << ((n) & (TAB_BITS_WIDTH-1)))
+
+#define SET_TAB(tabs,n) UIntSet(tabs[TAB_INDEX(n)], TAB_MASK(n))
+#define CLR_TAB(tabs,n) UIntClr(tabs[TAB_INDEX(n)], TAB_MASK(n))
+#define TST_TAB(tabs,n) (tabs[TAB_INDEX(n)] & (unsigned) TAB_MASK(n))
 
 /*
  * places tabstops at only every 8 columns
  */
-TabReset(tabs)
-Tabs	tabs;
+void
+TabReset(Tabs tabs)
 {
-	register int i;
+    int i;
 
-	for (i=0; i<TAB_ARRAY_SIZE; ++i)
-		tabs[i] = 0;
+    TabZonk(tabs);
 
-	for (i=0; i<MAX_TABS; i+=8)
-		TabSet(tabs, i);
-}	
-
+    for (i = 0; i < MAX_TABS; i += 8)
+	TabSet(tabs, i);
+}
 
 /*
  * places a tabstop at col
  */
-TabSet(tabs, col)
-    Tabs	tabs;
-    int		col;
+void
+TabSet(Tabs tabs, int col)
 {
-	tabs[col >> 5] |= (1 << (col & 31));
+    if (col >= 0 && col < MAX_TABS) {
+	SET_TAB(tabs, col);
+    }
 }
 
 /*
  * clears a tabstop at col
  */
-TabClear(tabs, col)
-    Tabs	tabs;
-    int		col;
+void
+TabClear(Tabs tabs, int col)
 {
-	tabs[col >> 5] &= ~(1 << (col & 31));
+    if (col >= 0 && col < MAX_TABS) {
+	CLR_TAB(tabs, col);
+    }
 }
 
 /*
@@ -75,32 +105,85 @@ TabClear(tabs, col)
  * (or MAX_TABS - 1 if there are no more).
  * A tabstop at col is ignored.
  */
-TabNext (tabs, col)
-    Tabs	tabs;
-    int		col;
+static int
+TabNext(XtermWidget xw, Tabs tabs, int col)
 {
-	extern XtermWidget term;
-	register TScreen *screen = &term->screen;
+    TScreen *screen = TScreenOf(xw);
 
-	if(screen->curses && screen->do_wrap && (term->flags & WRAPAROUND)) {
-		Index(screen, 1);
-		col = screen->cur_col = screen->do_wrap = 0;
-	}
-	for (++col; col<MAX_TABS; ++col)
-		if (tabs[col >> 5] & (1 << (col & 31)))
-			return (col);
+    if (screen->curses && screen->do_wrap && (xw->flags & WRAPAROUND)) {
+	xtermIndex(xw, 1);
+	set_cur_col(screen, 0);
+	col = 0;
+	ResetWrap(screen);
+    }
+    for (++col; col < MAX_TABS; ++col)
+	if (TST_TAB(tabs, col))
+	    return (col);
 
-	return (MAX_TABS - 1);
+    return (MAX_TABS - 1);
+}
+
+/*
+ * returns the column of the previous tabstop
+ * (or 0 if there are no more).
+ * A tabstop at col is ignored.
+ */
+static int
+TabPrev(Tabs tabs, int col)
+{
+    for (--col; col >= 0; --col)
+	if ((col < MAX_TABS) && TST_TAB(tabs, col))
+	    return (col);
+
+    return (0);
+}
+
+/*
+ * Tab to the next stop, returning true if the cursor moved
+ */
+Bool
+TabToNextStop(XtermWidget xw)
+{
+    TScreen *screen = TScreenOf(xw);
+    int saved_column = screen->cur_col;
+    int next = TabNext(xw, xw->tabs, screen->cur_col);
+    int max = LineMaxCol(screen, getLineData(screen, screen->cur_row));
+
+    if (IsLeftRightMode(xw))
+	max = TScreenOf(xw)->rgt_marg;
+    if (next > max)
+	next = max;
+    set_cur_col(screen, next);
+
+    return (screen->cur_col > saved_column);
+}
+
+/*
+ * Tab to the previous stop, returning true if the cursor moved
+ */
+Bool
+TabToPrevStop(XtermWidget xw)
+{
+    TScreen *screen = TScreenOf(xw);
+    int saved_column = screen->cur_col;
+    int next_column = TabPrev(xw->tabs, screen->cur_col);
+
+    if (xw->flags & ORIGIN) {
+	int left = ScrnLeftMargin(xw);
+	if (next_column < left)
+	    next_column = left;
+    }
+
+    set_cur_col(screen, next_column);
+
+    return (screen->cur_col < saved_column);
 }
 
 /*
  * clears all tabs
  */
-TabZonk (tabs)
-Tabs	tabs;
+void
+TabZonk(Tabs tabs)
 {
-	register int i;
-
-	for (i=0; i<TAB_ARRAY_SIZE; ++i)
-		tabs[i] = 0;
+    memset(tabs, 0, sizeof(*tabs) * TAB_ARRAY_SIZE);
 }

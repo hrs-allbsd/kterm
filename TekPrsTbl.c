@@ -1,7 +1,4 @@
-/*
- *	$XConsortium: TekPrsTbl.c,v 1.8 95/06/08 23:20:39 gildea Exp $
- */
-
+/* $XTermId: TekPrsTbl.c,v 1.8 2006/02/13 01:14:57 tom Exp $ */
 
 /*
  * Copyright 1987 by Digital Equipment Corporation, Maynard, Massachusetts.
@@ -25,14 +22,9 @@
  * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
  * SOFTWARE.
  */
+/* $XFree86: xc/programs/xterm/TekPrsTbl.c,v 3.5 2006/02/13 01:14:57 dickey Exp $ */
 
-#include "Tekparse.h"
-
-#ifdef __STDC__
-#define Const const
-#else
-#define Const /**/
-#endif
+#include <Tekparse.h>
 
 Const int Talptable[] =		/* US (^_) normal alpha mode */
 {

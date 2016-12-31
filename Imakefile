@@ -1,68 +1,233 @@
-XCOMM $XConsortium: Imakefile /main/65 1996/02/02 14:27:54 kaleb $
-XCOMM $Id: Imakefile,v 6.3 1996/07/12 05:01:03 kagotani Rel $
+XCOMM $XTermId: Imakefile,v 1.105 2011/11/29 10:19:20 Thorsten.Glaser Exp $
+XCOMM
+XCOMM                         Attention xterm porters
+XCOMM
+XCOMM
+XCOMM Xterm assumes that bcopy can handle overlapping arguments.  If your
+XCOMM bcopy (or memcpy) cannot, write a routine called bcopy and link it in
+XCOMM or add -Dbcopy=mybcopy to the DEFINES list below.
+XCOMM
 
-#include "kterm.h"
+/* Uncomment SCROLLBAR_RIGHT if you want the scroll bar to be on the right */
+SCROLLBAR_RIGHT = -DSCROLLBAR_RIGHT
+
+/* Define UTF8support to compile-in support for UTF-8 */
+#define UTF8support
 
 /*
- * for compilation with R6...
+ * setgid mode works for systems that do not require setuid to open pty.
+ *
+ * This feature could also be applied to FreeBSD, but requires the installer
+ * to define a "utmp" group as well as chgrp the utmp file to match.
+ *
+ * Note: InstallXtermSetUID is always defined; InstallXtermSetGID is defined
+ * in newer imake configurations.
  */
-#ifndef XkbClientDefines
-#define XkbClientDefines
-#define XkbClientDepLibs
-#define XkbClientLibs
-      XPOLL_DEF = -DNO_XPOLL_H
+#if !defined(InstallXtermSetGID) && !InstallXtermSetUID
+#if defined(OpenBSDArchitecture) || \
+    (defined(LinuxArchitecture) && \
+     (LinuxCLibMajorVersion == 6))
+#define InstallXtermSetGID YES
+#endif
 #endif
 
 /*
- * add -DWTMP and -DLASTLOG if you want them.
+ * Override the set uid/gid flags to use the utempter library.
+ */
+#if defined(UseUtempter)
+#undef InstallXtermSetUID /* imake sets this */
+#undef InstallXtermSetGID /* we set this */
+#define InstallXtermSetUID NO
+#define InstallXtermSetGID NO
+        UTMPLIB = -lutempter
+#endif
+
+/*
+ * Fixes to allow compile with X11R5, etc.
+ */
+#ifndef InstGidFlags
+#define InstGidFlags -m 2755 -g utmp
+#endif
+
+#ifndef InstUidFlags
+#define InstUidFlags -m 4711
+#endif
+
+#ifndef XkbClientDefines
+#define XkbClientDefines /**/
+#endif
+
+#ifndef InstallXtermSetUID
+#define InstallXtermSetUID NO
+#endif
+
+#ifndef InstallXtermSetGID
+#define InstallXtermSetGID NO
+#endif
+
+#ifndef XkbClientDepLibs
+#define XkbClientDepLibs /**/
+#endif
+
+#ifndef XkbClientLibs
+#define XkbClientLibs /**/
+#endif
+
+/* This must come before setting DEFINES */
+#if InstallXtermSetGID
+CSGIDFLAGS = -DUSE_UTMP_SETGID
+INSTSETIDFLAGS = InstGidFlags
+#elif InstallXtermSetUID
+INSTSETIDFLAGS = InstUidFlags
+#else
+INSTSETIDFLAGS = NullParameter
+#endif
+
+/*
+ * Compensate for broken imake configuration.
+ */
+#ifdef LinuxGnuSourceDefines
+# ifdef UseInstalled
+   IMAKEDEFINES = -D_GNU_SOURCE
+# endif
+#endif
+
+#ifndef SpecialCObjectRule
+#define SpecialCObjectRule(module,ignore,defines) \
+module.o: ; $(CC) -c defines $(CFLAGS) module.c
+#endif
+
+#ifndef ProgramTargetName
+#define ProgramTargetName(program) program
+#endif
+
+/*
+ * add -DWTMP and -DLASTLOG if you want them; make sure that bcopy can
+ * handle overlapping copies before using it.
  */
 #if SetTtyGroup			/* turn on in config/machine.cf */
-   TTYGROUPDEF = -DUSE_TTY_GROUP
+    TTYGROUPDEF = -DUSE_TTY_GROUP
 #endif
-#if UsePUCCPtyd			/* turn on in config/site.def */
-    PUCCPTYDDEF = -DPUCC_PTYD		/* does not need to be setuid */
+#ifdef UsePUCCPtyd		/* turn on in config/site.def */
+    PUCCPTYDDEF = -DPUCC_PTYD	/* does not need to be setuid */
          PTYLIB = -lpucc
+#endif
+
+#if defined(NetBSDArchitecture) || \
+    defined(OpenBSDArchitecture) || \
+    defined(FreeBSDArchitecture) || \
+    (defined(LinuxArchitecture) && \
+     (LinuxCLibMajorVersion == 6) && (LinuxCLibMinorVersion < 1))
+         PTYLIB = -lutil
+#endif
+
+#ifdef DarwinArchitecture
+/* dyld can deadlock if a signal comes in when it is looking up a symbol */
+  LOCAL_LDFLAGS = -Wl,-bind_at_load
+#endif
+
+#ifdef OS2Architecture
+/*
+ * Only used in os2main.c, see ptyx.h for OPT_I18N_SUPPORT
+ * <werner@suse.de>
+ */
+#if XtermWithI18N
+        I18NDEF = -DI18N
+      FEATURE_DEFINES = -DDEBUG -DALLOWLOGGING $(I18NDEF)
+#else
+      FEATURE_DEFINES = -DDEBUG -DALLOWLOGGING
+#endif
 #endif
 
  OSMAJORVERSION = OSMajorVersion
  OSMINORVERSION = OSMinorVersion
 
-   MAIN_DEFINES = -DUTMP $(TTYGROUPDEF) $(PUCCPTYDDEF) \
+#if	defined(NTOArchitecture)	|| \
+	defined(OpenBSDArchitecture)	|| \
+	defined(SGIArchitecture)	|| \
+	defined(SunArchitecture)
+TERMCAPDEFINES=-DUSE_TERMINFO -DHAVE_TIGETSTR
+#elif   defined(LinuxArchitecture)
+# if LinuxUsesNcurses
+TERMCAPDEFINES=-DUSE_TERMINFO -DHAVE_TIGETSTR
+# endif
+#endif
+
+#if !defined(OS2Architecture) && !defined(__GNU__)
+#if defined(UseUtempter)
+        UTMPDEF = -DUSE_UTEMPTER
+#else
+        UTMPDEF = -DUTMP
+#endif
+#endif
+
+#ifdef UTF8support
+    UTF8_OPTION = -DOPT_WIDE_CHARS -DOPT_LUIT_PROG
+        UTF8SRC = charclass.c precompose.c wcwidth.c xutf8.c
+        UTF8OBJ = charclass.o precompose.o wcwidth.o xutf8.o
+#endif
+#if BuildXftLibrary
+#define XRenderSupport
+#endif
+#ifdef XRenderSupport
+         XRFDEF = -DXRENDERFONT -DXFREE86_FT2
+        XRFLIBS = XftClientLibs
+     XRFDEPLIBS = XftClientDepLibs
+    XRFINCLUDES = $(XFTINCLUDES)
+#endif
+#if !HasPutenv
+      PUTENVDEF = -DNOPUTENV
+#endif
+#ifdef TraceXTerm
+       TRACEDEF = -DOPT_TRACE=1
+#endif
+   MAIN_DEFINES = $(UTMPDEF) $(TTYGROUPDEF) $(PUCCPTYDDEF) $(CSGIDFLAGS) \
 		  -DOSMAJORVERSION=$(OSMAJORVERSION) \
 		  -DOSMINORVERSION=$(OSMINORVERSION)
-   MISC_DEFINES = /* -DALLOWLOGFILEEXEC */ 
+   MISC_DEFINES = /* -DALLOWLOGGING -DALLOWLOGFILEEXEC */
     XKB_DEFINES = XkbClientDefines
-        DEFINES = $(XKB_DEFINES) $(XPOLL_DEF) -DKTERM -DSTATUSLINE -DKEEPALIVE -DWALLPAPER
+   PATH_DEFINES = -DPROJECTROOT=$(PROJECTROOT)
+        DEFINES = $(XKB_DEFINES) $(TERMCAPDEFINES) $(FEATURE_DEFINES) $(SCROLLBAR_RIGHT) $(UTF8_OPTION) $(XRFDEF) $(PATH_DEFINES) $(PUTENVDEF) $(IMAKEDEFINES) $(TRACEDEF)
+       INCLUDES = -I. $(XRFINCLUDES)
 
-#ifdef KTERM_XIM
-        XIMSRCS = xim.c
-        XIMOBJS = xim.o
+#ifdef OS2Architecture
+        MAINSRC = os2main.c
+        MAINOBJ = os2main.o
+#else
+        MAINSRC = main.c
+        MAINOBJ = main.o
 #endif
-#ifdef KTERM_KINPUT2
-    KINPUT2SRCS = kinput2.c convlib.c
-    KINPUT2OBJS = kinput2.o convlib.o
+#ifdef TraceXTerm
+       TRACESRC = trace.c
+       TRACEOBJ = trace.o
 #endif
-#ifndef KTERM_NOTEK
-        TEKSRCS = TekPrsTbl.c Tekproc.c
-        TEKOBJS = TekPrsTbl.o Tekproc.o
-#endif
-          SRCS1 = button.c charproc.c cursor.c data.c input.c \
-		  main.c menu.c misc.c screen.c scrollbar.c tabs.c \
-		  util.c VTPrsTbl.c kanji_map.c unicode_map.c \
-		  $(TEKSRCS) gset.c convert.c $(XIMSRCS) $(KINPUT2SRCS)
-          OBJS1 = button.o charproc.o cursor.o data.o input.o \
-		  main.o menu.o misc.o screen.o scrollbar.o tabs.o \
-		  util.o VTPrsTbl.o kanji_map.o unicode_map.o \
-		  $(TEKOBJS) gset.o convert.o $(XIMOBJS) $(KINPUT2OBJS)
-           SRCS = $(SRCS1)
-           OBJS = $(OBJS1)
-       DEPLIBS1 = XkbClientDepLibs XawClientDepLibs
-         XPMLIB = -lXpm
-       PROGRAMS = kterm
+          SRCS1 = button.c cachedGCs.c charproc.c charsets.c cursor.c \
+		  data.c doublechr.c fontutils.c input.c \
+		  linedata.c menu.c misc.c print.c ptydata.c scrollback.c \
+		  screen.c scrollbar.c tabs.c util.c xstrings.c xtermcap.c \
+		  TekPrsTbl.c Tekproc.c VTPrsTbl.c \
+		  $(MAINSRC) $(EXTRASRC) $(UTF8SRC) $(TRACESRC)
+          OBJS1 = button.o cachedGCs.o charproc.o charsets.o cursor.o \
+		  data.o doublechr.o fontutils.o input.o \
+		  linedata.o menu.o misc.o print.o ptydata.o scrollback.o \
+		  screen.o scrollbar.o tabs.o util.o xstrings.o xtermcap.o \
+		  TekPrsTbl.o Tekproc.o VTPrsTbl.o \
+		  $(MAINOBJ) $(EXTRAOBJ) $(UTF8OBJ) $(TRACEOBJ)
+          SRCS2 = resize.c xstrings.c
+          OBJS2 = resize.o xstrings.o
+           SRCS = $(SRCS1) $(SRCS2)
+           OBJS = $(OBJS1) $(OBJS2)
+       PROGRAMS = ProgramTargetName(resize) ProgramTargetName(xterm)
+       DEPLIBS1 = XkbClientDepLibs XawClientDepLibs $(XRFDEPLIBS)
+       DEPLIBS2 =
 
 #ifndef TermcapLibrary
 #if SystemV && !defined(MacIIArchitecture)
-#if defined(CrayArchitecture) || defined(HPArchitecture) || defined(RsArchitecture)
+#if	defined(CrayArchitecture) || \
+	(defined(HPArchitecture) && (OSMajorVersion < 10)) || \
+	defined(RsArchitecture) || \
+	defined(SCOArchitecture) || \
+	defined(USLArchitecture)
 #define TermcapLibrary -lcurses		/* special cases of System V */
 #else
 #define TermcapLibrary -ltermlib	/* usually in here */
@@ -77,24 +242,25 @@ XCOMM $Id: Imakefile,v 6.3 1996/07/12 05:01:03 kagotani Rel $
 AllTarget($(PROGRAMS))
 
 SpecialCObjectRule(main,$(_NOOP_),$(MAIN_DEFINES))
+SpecialCObjectRule(menu,$(_NOOP_),$(MISC_DEFINES))
 SpecialCObjectRule(misc,$(_NOOP_),$(MISC_DEFINES))
-SpecialCObjectRule(charproc,kfontlist.c,$(MISC_DEFINES))
-
-kfontlist.c: kfontlist.m4 kfontlist.def
-	m4 kfontlist.m4 > kfontlist.c
-
-clean::
-	$(RM) kfontlist.c
+SpecialCObjectRule(charproc,$(_NOOP_),$(MISC_DEFINES))
+SpecialCObjectRule(data,$(_NOOP_),$(MISC_DEFINES))
 
 #if InstallXtermSetUID
-SetUIDProgramTarget(kterm,$(OBJS1),$(DEPLIBS1),XkbClientLibs XawClientLibs,$(XPMLIB) $(TERMCAPLIB) $(PTYLIB))
+SetUIDProgramTarget(xterm,$(OBJS1),$(DEPLIBS1),$(XRFLIBS) XkbClientLibs XawClientLibs,$(TERMCAPLIB) $(PTYLIB))
 #else
-NormalProgramTarget(kterm,$(OBJS1),$(DEPLIBS1),XkbClientLibs XawClientLibs,$(XPMLIB) $(TERMCAPLIB) $(PTYLIB))
+NormalProgramTarget(xterm,$(OBJS1),$(DEPLIBS1),$(XRFLIBS) XkbClientLibs XawClientLibs,$(TERMCAPLIB) $(UTMPLIB) $(PTYLIB))
 #endif
 
-#if InstallXtermSetUID && defined(SunArchitecture) && HasSharedLibraries && OSMajorVersion < 5
+#if defined(OpenBSDArchitecture) || defined(MirBSDArchitecture)
+/* On OpenBSD xterm is now setgid utmp */
+INSTUIDFLAGS= -m 2555 -g utmp
+#endif
+
+#if InstallXtermSetUID && defined(SunArchitecture) && HasSharedLibraries && (OSMajorVersion < 5)
 #if AlternateUsrLibDir
-#if OSMajorVersion == 4 && OSMinorVersion >= 1
+#if ((OSMajorVersion == 4) && (OSMinorVersion >= 1))
 LDOVERRIDE = -L$(DESTDIR)$(USRLIBDIR)
 #else
 #if HasGcc
@@ -105,20 +271,49 @@ LDRESUME = -Bdynamic
 #endif
 #endif
 #endif
-install:: kterm
+install::
 	MakeDir($(DESTDIR)$(BINDIR))
-	RemoveFile(kterm.inst)
-	LinkRule(kterm.inst,$(CDEBUGFLAGS) $(CCOPTIONS) $(EXTRA_LDOPTIONS) $(LOCAL_LDFLAGS),$(OBJS1),$(LDOVERRIDE) XawClientLibs $(LDRESUME) $(LDLIBS) $(XPMLIB) $(TERMCAPLIB) $(PTYLIB))
-	$(INSTALL) -c $(INSTPGMFLAGS) $(INSTUIDFLAGS) kterm.inst $(DESTDIR)$(BINDIR)/kterm
-	RemoveFile(kterm.inst)
+	RemoveFile(ProgramTargetName(xterm.inst))
+	LinkRule(ProgramTargetName(xterm.inst),$(CDEBUGFLAGS) $(CCOPTIONS)
+	$(EXTRA_LDOPTIONS) $(LOCAL_LDFLAGS),$(OBJS1),$(LDOVERRIDE)
+	$(XRFLIBS) XawClientLibs $(LDRESUME) $(LDLIBS) $(TERMCAPLIB)
+	$(PTYLIB))
+	$(INSTALL) -c $(INSTPGMFLAGS) $(INSTSETIDFLAGS) ProgramTargetName(xterm.inst) $(DESTDIR)$(BINDIR)/ProgramTargetName(xterm)
+	RemoveFile(ProgramTargetName(xterm.inst))
 #else
-#if InstallXtermSetUID
-InstallProgramWithFlags(kterm,$(BINDIR),$(INSTUIDFLAGS))
-#else
-InstallProgramWithFlags(kterm,$(BINDIR),NullParameter)
-#endif
+InstallProgramWithFlags(xterm,$(BINDIR),$(INSTSETIDFLAGS))
 #endif
 
-InstallAppDefaults(KTerm)
-InstallManPage(kterm,$(MANDIR))
+InstallNamedProg(uxterm,uxterm,$(BINDIR))
+
+/*
+ * Link with the termcap library if USE_TERMCAP is defined in resize.c
+ */
+#if	defined(NTOArchitecture)	|| \
+	defined(LinuxArchitecture)	|| \
+	defined(OpenBSDArchitecture)	|| \
+	defined(SGIArchitecture)	|| \
+	defined(SunArchitecture)
+NormalProgramTarget(resize,$(OBJS2),$(DEPLIBS2),NullParameter,NullParameter)
+#else
+NormalProgramTarget(resize,$(OBJS2),$(DEPLIBS2),NullParameter,$(TERMCAPLIB))
+#endif
+
+InstallProgramWithFlags(resize,$(BINDIR),NullParameter)
+
+/*
+ * termcap is a special name that does not install correctly with
+ * InstallNamedNonExec()
+ */
+install::
+	MakeDir($(DESTDIR)$(LIBDIR)/etc)
+	$(INSTALL) $(INSTALLFLAGS) $(INSTDATFLAGS) termcap \
+		$(DESTDIR)$(LIBDIR)/etc/xterm.termcap
+InstallNamedNonExec(terminfo,xterm.terminfo,$(LIBDIR)/etc)
+
+InstallAppDefaults(XTerm)
+InstallAppDefaults(UXTerm)
+InstallAppDefaultsLong(XTerm-col,XTerm-color)
+InstallManPage(xterm,$(MANDIR))
+InstallManPage(resize,$(MANDIR))
 DependTarget()

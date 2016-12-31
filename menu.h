@@ -1,399 +1,525 @@
-/* $XConsortium: menu.h,v 1.25 94/04/17 20:23:31 gildea Exp $ */
-/* $Id: menu.h,v 6.2 1996/07/02 05:01:31 kagotani Rel $ */
+/* $XTermId: menu.h,v 1.128 2012/09/21 10:39:10 tom Exp $ */
+
 /*
+ * Copyright 1999-2010,2011 by Thomas E. Dickey
+ *
+ *                         All Rights Reserved
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE ABOVE LISTED COPYRIGHT HOLDER(S) BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Except as contained in this notice, the name(s) of the above copyright
+ * holders shall not be used in advertising or otherwise to promote the
+ * sale, use or other dealings in this Software without prior written
+ * authorization.
+ *
+ *
+ * Copyright 1989  The Open Group
+ *
+ * Permission to use, copy, modify, distribute, and sell this software and its
+ * documentation for any purpose is hereby granted without fee, provided that
+ * the above copyright notice appear in all copies and that both that
+ * copyright notice and this permission notice appear in supporting
+ * documentation.
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE OPEN GROUP BE LIABLE FOR ANY CLAIM, DAMAGES OR
+ * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Except as contained in this notice, the name of The Open Group shall
+ * not be used in advertising or otherwise to promote the sale, use or
+ * other dealings in this Software without prior written authorization
+ * from The Open Group.
+ *
+ */
 
-Copyright (c) 1989  X Consortium
+#ifndef included_menu_h
+#define included_menu_h
+/* *INDENT-OFF* */
 
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be included
-in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE X CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR
-OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
-
-Except as contained in this notice, the name of the X Consortium shall
-not be used in advertising or otherwise to promote the sale, use or
-other dealings in this Software without prior written authorization
-from the X Consortium.
-
-*/
+#include <xterm.h>
 
 typedef struct _MenuEntry {
-    char *name;
-    void (*function)();
+    const char *name;
+    void (*function) PROTO_XT_CALLBACK_ARGS;
     Widget widget;
 } MenuEntry;
 
-#ifdef KTERM_NOTEK
 extern MenuEntry mainMenuEntries[], vtMenuEntries[];
-#else /* !KTERM_NOTEK */
-extern MenuEntry mainMenuEntries[], vtMenuEntries[], tekMenuEntries[];
-#endif /* !KTERM_NOTEK */
 extern MenuEntry fontMenuEntries[];
-extern Arg menuArgs[];
-
-extern void HandleAllowSends();
-extern void HandleSetVisualBell();
-#ifdef ALLOWLOGGING
-extern void HandleLogging();
+#if OPT_TEK4014
+extern MenuEntry tekMenuEntries[];
 #endif
-extern void HandleRedraw();
-extern void HandleSendSignal();
-extern void HandleQuit();
-extern void HandleScrollbar();
-extern void HandleJumpscroll();
-extern void HandleReverseVideo();
-extern void HandleAutoWrap();
-extern void HandleReverseWrap();
-extern void HandleAutoLineFeed();
-extern void HandleAppCursor();
-extern void HandleAppKeypad();
-extern void HandleScrollKey();
-extern void HandleScrollTtyOutput();
-extern void HandleAllow132();
-extern void HandleCursesEmul();
-extern void HandleMarginBell();
-extern void HandleAltScreen();
-extern void HandleSoftReset();
-extern void HandleHardReset();
-extern void HandleClearSavedLines();
-extern void HandleSetTerminalType();
-extern void HandleVisibility();
-extern void HandleSetTekText();
-extern void HandleTekPage();
-extern void HandleTekReset();
-extern void HandleTekCopy();
-extern void DoSecureKeyboard();
-#ifdef STATUSLINE
-extern void HandleStatusLine();
-extern void HandleStatusReverse();
-#endif /* STATUSLINE */
-#ifdef KTERM_KANJIMODE
-extern void HandleSetKanjiMode();
-#endif /* KTERM_KANJIMODE */
+
+extern void Handle8BitControl      PROTO_XT_ACTIONS_ARGS;
+extern void HandleAllow132         PROTO_XT_ACTIONS_ARGS;
+extern void HandleAllowBoldFonts   PROTO_XT_ACTIONS_ARGS;
+extern void HandleAllowColorOps    PROTO_XT_ACTIONS_ARGS;
+extern void HandleAllowFontOps     PROTO_XT_ACTIONS_ARGS;
+extern void HandleAllowSends       PROTO_XT_ACTIONS_ARGS;
+extern void HandleAllowTcapOps     PROTO_XT_ACTIONS_ARGS;
+extern void HandleAllowTitleOps    PROTO_XT_ACTIONS_ARGS;
+extern void HandleAllowWindowOps   PROTO_XT_ACTIONS_ARGS;
+extern void HandleAltEsc           PROTO_XT_ACTIONS_ARGS;
+extern void HandleAltScreen        PROTO_XT_ACTIONS_ARGS;
+extern void HandleAppCursor        PROTO_XT_ACTIONS_ARGS;
+extern void HandleAppKeypad        PROTO_XT_ACTIONS_ARGS;
+extern void HandleAutoLineFeed     PROTO_XT_ACTIONS_ARGS;
+extern void HandleAutoWrap         PROTO_XT_ACTIONS_ARGS;
+extern void HandleBackarrow        PROTO_XT_ACTIONS_ARGS;
+extern void HandleBellIsUrgent     PROTO_XT_ACTIONS_ARGS;
+extern void HandleClearSavedLines  PROTO_XT_ACTIONS_ARGS;
+extern void HandleCreateMenu       PROTO_XT_ACTIONS_ARGS;
+extern void HandleCursesEmul       PROTO_XT_ACTIONS_ARGS;
+extern void HandleCursorBlink      PROTO_XT_ACTIONS_ARGS;
+extern void HandleDeleteIsDEL      PROTO_XT_ACTIONS_ARGS;
+extern void HandleFontBoxChars     PROTO_XT_ACTIONS_ARGS;
+extern void HandleFontDoublesize   PROTO_XT_ACTIONS_ARGS;
+extern void HandleFontLoading      PROTO_XT_ACTIONS_ARGS;
+extern void HandleFontPacked       PROTO_XT_ACTIONS_ARGS;
+extern void HandleFullscreen       PROTO_XT_ACTIONS_ARGS;
+extern void HandleHardReset        PROTO_XT_ACTIONS_ARGS;
+extern void HandleHpFunctionKeys   PROTO_XT_ACTIONS_ARGS;
+extern void HandleJumpscroll       PROTO_XT_ACTIONS_ARGS;
+extern void HandleKeepSelection    PROTO_XT_ACTIONS_ARGS;
+extern void HandleLogging          PROTO_XT_ACTIONS_ARGS;
+extern void HandleMarginBell       PROTO_XT_ACTIONS_ARGS;
+extern void HandleMetaEsc          PROTO_XT_ACTIONS_ARGS;
+extern void HandleNumLock          PROTO_XT_ACTIONS_ARGS;
+extern void HandleOldFunctionKeys  PROTO_XT_ACTIONS_ARGS;
+extern void HandlePopupMenu        PROTO_XT_ACTIONS_ARGS;
+extern void HandlePrintControlMode PROTO_XT_ACTIONS_ARGS;
+extern void HandlePrintEverything  PROTO_XT_ACTIONS_ARGS;
+extern void HandlePrintScreen      PROTO_XT_ACTIONS_ARGS;
+extern void HandleQuit             PROTO_XT_ACTIONS_ARGS;
+extern void HandleRedraw           PROTO_XT_ACTIONS_ARGS;
+extern void HandleRenderFont       PROTO_XT_ACTIONS_ARGS;
+extern void HandleReverseVideo     PROTO_XT_ACTIONS_ARGS;
+extern void HandleReverseWrap      PROTO_XT_ACTIONS_ARGS;
+extern void HandleScoFunctionKeys  PROTO_XT_ACTIONS_ARGS;
+extern void HandleScrollKey        PROTO_XT_ACTIONS_ARGS;
+extern void HandleScrollTtyOutput  PROTO_XT_ACTIONS_ARGS;
+extern void HandleScrollbar        PROTO_XT_ACTIONS_ARGS;
+extern void HandleSecure           PROTO_XT_ACTIONS_ARGS;
+extern void HandleSendSignal       PROTO_XT_ACTIONS_ARGS;
+extern void HandleSetPopOnBell     PROTO_XT_ACTIONS_ARGS;
+extern void HandleSetSelect        PROTO_XT_ACTIONS_ARGS;
+extern void HandleSetTekText       PROTO_XT_ACTIONS_ARGS;
+extern void HandleSetTerminalType  PROTO_XT_ACTIONS_ARGS;
+extern void HandleSetVisualBell    PROTO_XT_ACTIONS_ARGS;
+extern void HandleSoftReset        PROTO_XT_ACTIONS_ARGS;
+extern void HandleSunFunctionKeys  PROTO_XT_ACTIONS_ARGS;
+extern void HandleSunKeyboard      PROTO_XT_ACTIONS_ARGS;
+extern void HandleTekCopy          PROTO_XT_ACTIONS_ARGS;
+extern void HandleTekPage          PROTO_XT_ACTIONS_ARGS;
+extern void HandleTekReset         PROTO_XT_ACTIONS_ARGS;
+extern void HandleTiteInhibit      PROTO_XT_ACTIONS_ARGS;
+extern void HandleToolbar          PROTO_XT_ACTIONS_ARGS;
+extern void HandleUTF8Fonts        PROTO_XT_ACTIONS_ARGS;
+extern void HandleUTF8Mode         PROTO_XT_ACTIONS_ARGS;
+extern void HandleUTF8Title        PROTO_XT_ACTIONS_ARGS;
+extern void HandleVisibility       PROTO_XT_ACTIONS_ARGS;
+extern void HandleWriteError       PROTO_XT_ACTIONS_ARGS;
+extern void HandleWriteNow         PROTO_XT_ACTIONS_ARGS;
+
+extern void SetupMenus (Widget /*shell*/, Widget */*forms*/, Widget */*menus*/, Dimension * /*menu_high*/);
+
+#if OPT_TOOLBAR
+extern void ShowToolbar(Bool);
+#endif
 
 /*
- * The following definitions MUST match the order of entries given in 
+ * The following definitions MUST match the order of entries given in
  * the mainMenuEntries, vtMenuEntries, and tekMenuEntries arrays in menu.c.
  */
 
 /*
  * items in primary menu
  */
-#define mainMenu_securekbd 0
-#define mainMenu_allowsends 1
-#ifdef ALLOWLOGGING
-#define mainMenu_logging 2
+typedef enum {
+#if OPT_TOOLBAR
+    mainMenu_toolbar,
 #endif
-#define mainMenu_redraw 3
-#define mainMenu_line1 4
-#define mainMenu_suspend 5
-#define mainMenu_continue 6
-#define mainMenu_interrupt 7
-#define mainMenu_hangup 8
-#define mainMenu_terminate 9
-#define mainMenu_kill 10
-#define mainMenu_line2 11
-#define mainMenu_quit 12
+#if OPT_MAXIMIZE
+    mainMenu_fullscreen,
+#endif
+    mainMenu_securekbd,
+    mainMenu_allowsends,
+    mainMenu_redraw,
+    mainMenu_line1,
+#ifdef ALLOWLOGGING
+    mainMenu_logging,
+#endif
+#if OPT_PRINT_ON_EXIT
+    mainMenu_write_now,
+    mainMenu_write_error,
+#endif
+    mainMenu_print,
+    mainMenu_print_redir,
+    mainMenu_line2,
+    mainMenu_8bit_ctrl,
+    mainMenu_backarrow,
+#if OPT_NUM_LOCK
+    mainMenu_num_lock,
+    mainMenu_alt_esc,
+    mainMenu_meta_esc,
+#endif
+    mainMenu_delete_del,
+    mainMenu_old_fkeys,
+#if OPT_TCAP_FKEYS
+    mainMenu_tcap_fkeys,
+#endif
+#if OPT_HP_FUNC_KEYS
+    mainMenu_hp_fkeys,
+#endif
+#if OPT_SCO_FUNC_KEYS
+    mainMenu_sco_fkeys,
+#endif
+#if OPT_SUN_FUNC_KEYS
+    mainMenu_sun_fkeys,
+#endif
+#if OPT_SUNPC_KBD
+    mainMenu_sun_kbd,
+#endif
+    mainMenu_line3,
+    mainMenu_suspend,
+    mainMenu_continue,
+    mainMenu_interrupt,
+    mainMenu_hangup,
+    mainMenu_terminate,
+    mainMenu_kill,
+    mainMenu_line4,
+    mainMenu_quit,
+    mainMenu_LAST
+} mainMenuIndices;
 
 
 /*
  * items in vt100 mode menu
  */
-#define vtMenu_scrollbar 0
-#define vtMenu_jumpscroll 1
-#define vtMenu_reversevideo 2
-#define vtMenu_autowrap 3
-#define vtMenu_reversewrap 4
-#define vtMenu_autolinefeed 5
-#define vtMenu_appcursor 6
-#define vtMenu_appkeypad 7
-#define vtMenu_scrollkey 8
-#define vtMenu_scrollttyoutput 9
-#define vtMenu_allow132 10
-#define vtMenu_cursesemul 11
-#define vtMenu_visualbell 12
-#define vtMenu_marginbell 13
-#define vtMenu_altscreen 14
-#define vtMenu_line1 15
-#define vtMenu_softreset 16
-#define vtMenu_hardreset 17
-#define vtMenu_clearsavedlines 18
-#ifdef KTERM_NOTEK /* implies KTERM */
-# define vtMenu_line3 19
-#else /* !KTERM_NOTEK */
-#define vtMenu_line2 19
-#define vtMenu_tekshow 20
-#define vtMenu_tekmode 21
-#define vtMenu_vthide 22
-# if defined(STATUSLINE) || defined(KTERM)
-#  define vtMenu_line3 23
-# endif /* STATUSLINE || KTERM */
-#endif /* !KTERM_NOTEK */
-#ifdef STATUSLINE
-#  define vtMenu_statusline (vtMenu_line3+1)
-#  define vtMenu_reversestatus (vtMenu_statusline+1)
-#endif /* STATUSLINE */
-#ifdef KTERM_KANJIMODE
-#  ifdef vtMenu_reversestatus
-#    define vtMenu_eucmode (vtMenu_reversestatus+1)
-#  else
-#    define vtMenu_eucmode (vtMenu_line3+1)
-#  endif
-#  define vtMenu_sjismode (vtMenu_eucmode+1)
-#  define vtMenu_utf8mode (vtMenu_sjismode+1)
-#endif /* KTERM_KANJIMODE */
-#ifdef KTERM_XIM
-#  ifdef vtMenu_utf8mode
-#    define vtMenu_openim (vtMenu_utf8mode+1)
-#  else
-#    ifdef vtMenu_sjismode
-#      define vtMenu_openim (vtMenu_sjismode+1)
-#    else
-#      ifdef vtMenu_reversestatus
-#        define vtMenu_openim (vtMenu_reversestatus+1)
-#      else
-#        define vtMenu_openim (vtMenu_line3+1)
-#      endif
-#    endif
-#  endif
-#endif /* KTERM_XIM */
+typedef enum {
+    vtMenu_scrollbar,
+    vtMenu_jumpscroll,
+    vtMenu_reversevideo,
+    vtMenu_autowrap,
+    vtMenu_reversewrap,
+    vtMenu_autolinefeed,
+    vtMenu_appcursor,
+    vtMenu_appkeypad,
+    vtMenu_scrollkey,
+    vtMenu_scrollttyoutput,
+    vtMenu_allow132,
+    vtMenu_keepSelection,
+    vtMenu_selectToClipboard,
+    vtMenu_visualbell,
+    vtMenu_bellIsUrgent,
+    vtMenu_poponbell,
+#if OPT_BLINK_CURS
+    vtMenu_cursorblink,
+#endif
+    vtMenu_titeInhibit,
+#ifndef NO_ACTIVE_ICON
+    vtMenu_activeicon,
+#endif /* NO_ACTIVE_ICON */
+    vtMenu_line1,
+    vtMenu_softreset,
+    vtMenu_hardreset,
+    vtMenu_clearsavedlines,
+    vtMenu_line2,
+#if OPT_TEK4014
+    vtMenu_tekshow,
+    vtMenu_tekmode,
+    vtMenu_vthide,
+#endif
+    vtMenu_altscreen,
+    vtMenu_LAST
+} vtMenuIndices;
 
 /*
  * items in vt100 font menu
  */
-#define fontMenu_fontdefault 0
-#define fontMenu_font1 1
-#define fontMenu_font2 2
-#define fontMenu_font3 3
-#define fontMenu_font4 4
-#define fontMenu_font5 5
-#define fontMenu_font6 6
+typedef enum {
+    fontMenu_default,
+    fontMenu_font1,
+    fontMenu_font2,
+    fontMenu_font3,
+    fontMenu_font4,
+    fontMenu_font5,
+    fontMenu_font6,
 #define fontMenu_lastBuiltin fontMenu_font6
-#define fontMenu_fontescape 7
-#define fontMenu_fontsel 8
-/* number of non-line items should match NMENUFONTS in ptyx.h */
+    fontMenu_fontescape,
+    fontMenu_fontsel,
+/* number of non-line items down to here should match NMENUFONTS in ptyx.h */
 
+#if OPT_DEC_CHRSET || OPT_BOX_CHARS || OPT_DEC_SOFTFONT
+    fontMenu_line1,
+    fontMenu_allowBoldFonts,
+#if OPT_BOX_CHARS
+    fontMenu_font_boxchars,
+    fontMenu_font_packedfont,
+#endif
+#if OPT_DEC_CHRSET
+    fontMenu_font_doublesize,
+#endif
+#if OPT_DEC_SOFTFONT
+    fontMenu_font_loadable,
+#endif
+#endif
 
-#ifndef KTERM_NOTEK
+#if OPT_RENDERFONT || OPT_WIDE_CHARS
+    fontMenu_line2,
+#if OPT_RENDERFONT
+    fontMenu_render_font,
+#endif
+#if OPT_WIDE_CHARS
+    fontMenu_utf8_mode,
+    fontMenu_utf8_fonts,
+    fontMenu_utf8_title,
+#endif
+#endif
+#if OPT_ALLOW_XXX_OPS
+    fontMenu_line3,
+    fontMenu_allowColorOps,
+    fontMenu_allowFontOps,
+    fontMenu_allowTcapOps,
+    fontMenu_allowTitleOps,
+    fontMenu_allowWindowOps,
+#endif
+
+    fontMenu_LAST
+} fontMenuIndices;
+
 /*
  * items in tek4014 mode menu
  */
-#define tekMenu_tektextlarge 0
-#define tekMenu_tektext2 1
-#define tekMenu_tektext3 2
-#define tekMenu_tektextsmall 3
-#define tekMenu_line1 4
-#define tekMenu_tekpage 5
-#define tekMenu_tekreset 6
-#define tekMenu_tekcopy 7
-#define tekMenu_line2 8
-#define tekMenu_vtshow 9
-#define tekMenu_vtmode 10
-#define tekMenu_tekhide 11
-#endif /* !KTERM_NOTEK */
+#if OPT_TEK4014
+typedef enum {
+    tekMenu_tektextlarge,
+    tekMenu_tektext2,
+    tekMenu_tektext3,
+    tekMenu_tektextsmall,
+    tekMenu_line1,
+    tekMenu_tekpage,
+    tekMenu_tekreset,
+    tekMenu_tekcopy,
+    tekMenu_line2,
+    tekMenu_vtshow,
+    tekMenu_vtmode,
+    tekMenu_tekhide,
+    tekMenu_LAST
+} tekMenuIndices;
+#endif
 
 
 /*
- * macros for updating menus
+ * functions for updating menus
  */
 
-#define update_menu_item(w,mi,val) { if (mi) { \
-    menuArgs[0].value = (XtArgVal) ((val) ? term->screen.menu_item_bitmap \
-				          : None); \
-    XtSetValues (mi, menuArgs, (Cardinal) 1); }}
+extern void SetItemSensitivity(Widget mi, Bool val);
 
+typedef enum {
+    toggleErr = -2,
+    toggleAll = -1,
+    toggleOff = 0,
+    toggleOn = 1
+} ToggleEnum;
 
-#define set_sensitivity(w,mi,val) { if (mi) { \
-    menuArgs[1].value = (XtArgVal) (val); \
-    XtSetValues (mi, menuArgs+1, (Cardinal) 1);  }}
-
-
+extern int decodeToggle(XtermWidget /* xw */, String * /* params */, Cardinal /* nparams */);
 
 /*
  * there should be one of each of the following for each checkable item
  */
-
-
-#define update_securekbd() \
-  update_menu_item (term->screen.mainMenu, \
-		    mainMenuEntries[mainMenu_securekbd].widget, \
-		    term->screen.grabbedKbd)
-
-#define update_allowsends() \
-  update_menu_item (term->screen.mainMenu, \
-		    mainMenuEntries[mainMenu_allowsends].widget, \
-		    term->screen.allowSendEvents)
-
-#ifdef ALLOWLOGGING
-#define update_logging() \
-  update_menu_item (term->screen.mainMenu, \
-		    mainMenuEntries[mainMenu_logging].widget, \
-		    term->screen.logging)
+#if OPT_TOOLBAR
+extern void update_toolbar(void);
+#else
+#define update_toolbar() /* nothing */
 #endif
 
-#define update_scrollbar() \
-  update_menu_item (term->screen.vtMenu, \
-		    vtMenuEntries[vtMenu_scrollbar].widget, \
-		    term->screen.scrollbar)
+#if OPT_MAXIMIZE
+extern void update_fullscreen(void);
+#else
+#define update_fullscreen() /* nothing */
+#endif
 
-#define update_jumpscroll() \
-  update_menu_item (term->screen.vtMenu, \
-		    vtMenuEntries[vtMenu_jumpscroll].widget, \
-		    term->screen.jumpscroll)
+extern void update_securekbd(void);
+extern void update_allowsends(void);
 
-#define update_reversevideo() \
-  update_menu_item (term->screen.vtMenu, \
-		    vtMenuEntries[vtMenu_reversevideo].widget, \
-		    (term->flags & REVERSE_VIDEO))
+#ifdef ALLOWLOGGING
+extern void update_logging(void);
+#else
+#define update_logging() /*nothing*/
+#endif
 
-#define update_autowrap() \
-  update_menu_item (term->screen.vtMenu, \
-		    vtMenuEntries[vtMenu_autowrap].widget, \
-		    (term->flags & WRAPAROUND))
+#if OPT_PRINT_ON_EXIT
+extern void update_write_error(void);
+#else
+#define update_write_error() /*nothing*/
+#endif
 
-#define update_reversewrap() \
-  update_menu_item (term->screen.vtMenu, \
-		    vtMenuEntries[vtMenu_reversewrap].widget, \
-		    (term->flags & REVERSEWRAP))
+extern void update_print_redir(void);
+extern void update_8bit_control(void);
+extern void update_decbkm(void);
 
-#define update_autolinefeed() \
-  update_menu_item (term->screen.vtMenu, \
-		    vtMenuEntries[vtMenu_autolinefeed].widget, \
-		    (term->flags & LINEFEED))
+#if OPT_NUM_LOCK
+extern void update_num_lock(void);
+extern void update_alt_esc(void);
+extern void update_meta_esc(void);
+#else
+#define update_num_lock() /*nothing*/
+#define update_alt_esc()  /*nothing*/
+#define update_meta_esc() /*nothing*/
+#endif
 
-#define update_appcursor() \
-  update_menu_item (term->screen.vtMenu, \
-		    vtMenuEntries[vtMenu_appcursor].widget, \
-		    (term->keyboard.flags & CURSOR_APL))
+extern void update_old_fkeys(void);
+extern void update_delete_del(void);
 
-#define update_appkeypad() \
-  update_menu_item (term->screen.vtMenu, \
-		    vtMenuEntries[vtMenu_appkeypad].widget, \
-		    (term->keyboard.flags & KYPD_APL))
+#if OPT_SUNPC_KBD
+extern void update_sun_kbd(void);
+#endif
 
-#define update_scrollkey() \
-  update_menu_item (term->screen.vtMenu, \
-		    vtMenuEntries[vtMenu_scrollkey].widget,  \
-		    term->screen.scrollkey)
+#if OPT_HP_FUNC_KEYS
+extern void update_hp_fkeys(void);
+#else
+#define update_hp_fkeys() /*nothing*/
+#endif
 
-#define update_scrollttyoutput() \
-  update_menu_item (term->screen.vtMenu, \
-		    vtMenuEntries[vtMenu_scrollttyoutput].widget, \
-		    term->screen.scrollttyoutput)
+#if OPT_SCO_FUNC_KEYS
+extern void update_sco_fkeys(void);
+#else
+#define update_sco_fkeys() /*nothing*/
+#endif
 
-#define update_allow132() \
-  update_menu_item (term->screen.vtMenu, \
-		    vtMenuEntries[vtMenu_allow132].widget, \
-		    term->screen.c132)
-  
-#define update_cursesemul() \
-  update_menu_item (term->screen.vtMenu, \
-		    vtMenuEntries[vtMenu_cursesemul].widget, \
-		    term->screen.curses)
+#if OPT_SUN_FUNC_KEYS
+extern void update_sun_fkeys(void);
+#else
+#define update_sun_fkeys() /*nothing*/
+#endif
 
-#define update_visualbell() \
-  update_menu_item (term->screen.vtMenu, \
-		    vtMenuEntries[vtMenu_visualbell].widget, \
-		    term->screen.visualbell)
+#if OPT_TCAP_FKEYS
+extern void update_tcap_fkeys(void);
+#else
+#define update_tcap_fkeys() /*nothing*/
+#endif
 
-#define update_marginbell() \
-  update_menu_item (term->screen.vtMenu, \
-		    vtMenuEntries[vtMenu_marginbell].widget, \
-		    term->screen.marginbell)
+extern void update_scrollbar(void);
+extern void update_jumpscroll(void);
+extern void update_reversevideo(void);
+extern void update_autowrap(void);
+extern void update_reversewrap(void);
+extern void update_autolinefeed(void);
+extern void update_appcursor(void);
+extern void update_appkeypad(void);
+extern void update_scrollkey(void);
+extern void update_keepSelection(void);
+extern void update_selectToClipboard(void);
+extern void update_scrollttyoutput(void);
+extern void update_allow132(void);
+extern void update_cursesemul(void);
+extern void update_visualbell(void);
+extern void update_bellIsUrgent(void);
+extern void update_poponbell(void);
 
-#define update_altscreen() \
-  update_menu_item (term->screen.vtMenu, \
-		    vtMenuEntries[vtMenu_altscreen].widget, \
-		    term->screen.alternate)
+#define update_marginbell() /* nothing */
 
-#ifndef KTERM_NOTEK
-#define update_tekshow() \
-  update_menu_item (term->screen.vtMenu, \
-		    vtMenuEntries[vtMenu_tekshow].widget, \
-		    term->screen.Tshow)
+#if OPT_ALLOW_XXX_OPS
+extern void update_menu_allowColorOps(void);
+extern void update_menu_allowFontOps(void);
+extern void update_menu_allowTcapOps(void);
+extern void update_menu_allowTitleOps(void);
+extern void update_menu_allowWindowOps(void);
+#endif
 
-#define update_vttekmode() { \
-    update_menu_item (term->screen.vtMenu, \
-		      vtMenuEntries[vtMenu_tekmode].widget, \
-		      term->screen.TekEmu) \
-    update_menu_item (term->screen.tekMenu, \
-		      tekMenuEntries[tekMenu_vtmode].widget, \
-		      !term->screen.TekEmu) }
+#if OPT_BLINK_CURS
+extern void update_cursorblink(void);
+#else
+#define update_cursorblink() /* nothing */
+#endif
 
-#define update_vtshow() \
-  update_menu_item (term->screen.tekMenu, \
-		    tekMenuEntries[tekMenu_vtshow].widget, \
-		    term->screen.Vshow)
-#endif /* !KTERM_NOTEK */
-#ifdef STATUSLINE
-#define update_statusline() \
-  update_menu_item (term->screen.vtMenu, \
-		    vtMenuEntries[vtMenu_statusline].widget, \
-		    term->screen.statusheight)
-#define update_reversestatus() \
-  update_menu_item (term->screen.vtMenu, \
-		    vtMenuEntries[vtMenu_reversestatus].widget, \
-		    term->screen.reversestatus)
-#endif /* STATUSLINE */
-#ifdef KTERM_KANJIMODE
-#define update_eucmode() \
-  update_menu_item (term->screen.vtMenu, \
-		    vtMenuEntries[vtMenu_eucmode].widget, \
-		    term->flags & EUC_KANJI)
+extern void update_altscreen(void);
+extern void update_titeInhibit(void);
 
-#define update_sjismode() \
-  update_menu_item (term->screen.vtMenu, \
-		    vtMenuEntries[vtMenu_sjismode].widget, \
-		    term->flags & SJIS_KANJI)
+#ifndef NO_ACTIVE_ICON
+extern void update_activeicon(void);
+#endif /* NO_ACTIVE_ICON */
 
-#define update_utf8mode() \
-  update_menu_item (term->screen.vtMenu, \
-		    vtMenuEntries[vtMenu_utf8mode].widget, \
-		    term->flags & UTF8_KANJI)
-#endif /* KTERM_KANJIMODE */
-#ifdef KTERM_XIM
-#define update_openim() \
-  update_menu_item (term->screen.vtMenu, \
-		    vtMenuEntries[vtMenu_openim].widget, \
-		    term->screen.imregistered)
-#endif /* KTERM_XIM */
+#if OPT_DEC_CHRSET
+extern void update_font_doublesize(void);
+#else
+#define update_font_doublesize() /* nothing */
+#endif
 
+#if OPT_BOX_CHARS
+extern void update_font_boxchars(void);
+extern void update_font_packed(void);
+#else
+#define update_font_boxchars() /* nothing */
+#define update_font_packed() /* nothing */
+#endif
 
-#ifndef KTERM_NOTEK
-#define set_vthide_sensitivity() \
-  set_sensitivity (term->screen.vtMenu, \
-		   vtMenuEntries[vtMenu_vthide].widget, \
-		   term->screen.Tshow)
+#if OPT_DEC_SOFTFONT
+extern void update_font_loadable(void);
+#else
+#define update_font_loadable() /* nothing */
+#endif
 
-#define set_tekhide_sensitivity() \
-  set_sensitivity (term->screen.tekMenu, \
-		   tekMenuEntries[tekMenu_tekhide].widget, \
-		   term->screen.Vshow)
-#endif /* !KTERM_NOTEK */
+#if OPT_RENDERFONT
+extern void update_font_renderfont(void);
+#else
+#define update_font_renderfont() /* nothing */
+#endif
 
-#define set_altscreen_sensitivity(val) \
-  set_sensitivity (term->screen.vtMenu,\
-		   vtMenuEntries[vtMenu_altscreen].widget, (val))
-#ifdef STATUSLINE
-#define set_reversestatus_sensitivity() \
-  set_sensitivity (term->screen.vtMenu, \
-		   vtMenuEntries[vtMenu_reversestatus].widget, \
-		   term->screen.statusheight)
-#endif /* STATUSLINE */
+#if OPT_WIDE_CHARS
+extern void update_font_utf8_mode(void);
+extern void update_font_utf8_fonts(void);
+extern void update_font_utf8_title(void);
+#else
+#define update_font_utf8_mode() /* nothing */
+#define update_font_utf8_fonts() /* nothing */
+#define update_font_utf8_title() /* nothing */
+#endif
 
+#if OPT_TEK4014
+extern void update_tekshow(void);
+extern void update_vttekmode(void);
+extern void update_vtshow(void);
+extern void set_vthide_sensitivity(void);
+extern void set_tekhide_sensitivity(void);
+#else
+#define update_tekshow() /*nothing*/
+#define update_vttekmode() /*nothing*/
+#define update_vtshow() /*nothing*/
+#define set_vthide_sensitivity() /*nothing*/
+#define set_tekhide_sensitivity() /*nothing*/
+#endif
+
+#if OPT_DEC_CHRSET || OPT_BOX_CHARS || OPT_DEC_SOFTFONT
+extern void update_menu_allowBoldFonts(void);
+#else
+#define update_menu_allowBoldFonts() /*nothing*/
+#endif
 
 /*
  * macros for mapping font size to tekMenu placement
@@ -401,14 +527,14 @@ extern void HandleSetKanjiMode();
 #define FS2MI(n) (n)			/* font_size_to_menu_item */
 #define MI2FS(n) (n)			/* menu_item_to_font_size */
 
-#ifndef KTERM_NOTEK
-#define set_tekfont_menu_item(n,val) \
-  update_menu_item (term->screen.tekMenu, \
-		    tekMenuEntries[FS2MI(n)].widget, \
-		    (val))
-#endif /* !KTERM_NOTEK */
+#if OPT_TEK4014
+extern void set_tekfont_menu_item(int n,int val);
+#else
+#define set_tekfont_menu_item(n,val) /*nothing*/
+#endif
 
-#define set_menu_font(val) \
-  update_menu_item (term->screen.fontMenu, \
-		    fontMenuEntries[term->screen.menu_font_number].widget, \
-		    (val))
+extern void set_menu_font(int val);
+
+/* *INDENT-ON* */
+
+#endif /* included_menu_h */

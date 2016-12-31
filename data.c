@@ -1,9 +1,34 @@
-/*
- *	$XConsortium: data.c,v 1.12 95/04/05 19:58:47 kaleb Exp $
- *	$Id: data.c,v 6.2 1996/07/02 05:01:31 kagotani Rel $
- */
+/* $XTermId: data.c,v 1.92 2011/02/13 19:59:23 tom Exp $ */
 
 /*
+ * Copyright 2002-2009,2011 by Thomas E. Dickey
+ *
+ *                         All Rights Reserved
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE ABOVE LISTED COPYRIGHT HOLDER(S) BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Except as contained in this notice, the name(s) of the above copyright
+ * holders shall not be used in advertising or otherwise to promote the
+ * sale, use or other dealings in this Software without prior written
+ * authorization.
+ *
  * Copyright 1987 by Digital Equipment Corporation, Maynard, Massachusetts.
  *
  *                         All Rights Reserved
@@ -26,115 +51,65 @@
  * SOFTWARE.
  */
 
-#include "ptyx.h"		/* gets Xt stuff, too */
-#ifndef NO_XPOLL_H
-#include <X11/Xpoll.h>
-#endif
-#include "data.h"
-#include <setjmp.h>
+#include <data.h>
 
-#ifndef KTERM_NOTEK
-XPoint T_boxlarge[NBOX] = {
-	{0, 0},
-	{8, 0},
-	{0, 14},
-	{-8, 0},
-	{0, -14},
-};
-XPoint T_box2[NBOX] = {
-	{0, 0},
-	{7, 0},
-	{0, 12},
-	{-7, 0},
-	{0, -12},
-};
-XPoint T_box3[NBOX] = {
-	{0, 0},
-	{5, 0},
-	{0, 12},
-	{-5, 0},
-	{0, -12},
-};
-XPoint T_boxsmall[NBOX] = {
-	{0, 0},
-	{5, 0},
-	{0, 9},
-	{-5, 0},
-	{0, -9},
-};
-jmp_buf Tekend;
-int Tbcnt = 0;
-Char *Tbuffer;
-Char *Tbptr;
-TekLink *TekRefresh;
+Widget toplevel;		/* top-most widget in xterm */
+
+#if OPT_TEK4014
 Char *Tpushb;
 Char *Tpushback;
-int Ttoggled = 0;
-#endif /* !KTERM_NOTEK */
-int bcnt = 0;
-#ifdef KTERM_MBCS
- /*
-  * buffer[-1] is reserved for pending_byte in two-byte character.
-  */
-static Char Vbuffer[BUF_SIZE + 1];
-Char *buffer = Vbuffer + 1;
-Char *bptr = Vbuffer + 1;
-#else /* !KTERM_MBCS */
-Char buffer[BUF_SIZE];
-Char *bptr = buffer;
-#endif /* !KTERM_MBCS */
-#ifndef KTERM_NOTEK
-jmp_buf VTend;
-#endif /* !KTERM_NOTEK */
-XPoint VTbox[NBOX] = {
-	{0, 0},
-	{0, 0},
-	{0, 0},
-	{0, 0},
-	{0, 0},
-};
-#ifdef KTERM_MBCS
-XPoint VTwbox[NBOX] = {
-	{0, 0},
-	{0, 0},
-	{0, 0},
-	{0, 0},
-	{0, 0},
-};
-#endif /* KTERM_MBCS */
-
-#ifdef DEBUG
-int debug = 0; 		/* true causes error messages to be displayed */
-#endif	/* DEBUG */
-XtermWidget term;		/* master data structure for client */
-char *xterm_name;	/* argv[0] */
-int am_slave = 0;	/* set to 1 if running as a slave process */
-int max_plus1;
-fd_set Select_mask;
-fd_set X_mask;
-fd_set pty_mask;
-char *ptydev;
-char *ttydev;
-#ifdef ALLOWLOGGING
-# ifdef KTERM
-char log_def_name[] = "KtermLog.XXXXX";
-# else /* !KTERM */
-char log_def_name[] = "XtermLog.XXXXX";
-# endif /* !KTERM */
-#endif
-#ifndef KTERM_NOTEK
+TekLink *tekRefreshList;
+TekWidget tekWidget;
+Widget tekshellwidget;
 int T_lastx = -1;
 int T_lasty = -1;
-#endif /* !KTERM_NOTEK */
+int Ttoggled = 0;
+jmp_buf Tekend;
+#endif
 
-int waitingForTrackInfo = 0;
-EventMode eventMode = NORMAL;
+char *ProgramName;
 
-GC visualBellGC;
+Arg ourTopLevelShellArgs[] =
+{
+    {XtNallowShellResize, (XtArgVal) True},
+    {XtNinput, (XtArgVal) True},
+};
+Cardinal number_ourTopLevelShellArgs = 2;
 
-int VTgcFontMask = GCFont;
-#ifndef KTERM_NOTEK
-int TEKgcFontMask = GCFont;
+Atom wm_delete_window;		/* for ICCCM delete window */
 
-TekWidget tekWidget;
-#endif /* !KTERM_NOTEK */
+XTERM_RESOURCE resource;
+
+PtyData *VTbuffer;
+
+jmp_buf VTend;
+
+#ifdef DEBUG
+int debug = 0;			/* true causes error messages to be displayed */
+#endif /* DEBUG */
+
+XtAppContext app_con;
+XtermWidget term;		/* master data structure for client */
+
+int hold_screen;
+SIG_ATOMIC_T need_cleanup = False;
+
+int am_slave = -1;		/* set to file-descriptor if we're a slave process */
+int max_plus1;
+PtySelect Select_mask;
+PtySelect X_mask;
+PtySelect pty_mask;
+char *ptydev;
+char *ttydev;
+
+#if HANDLE_STRUCT_NOTIFY
+int mapstate = -1;
+#endif /* HANDLE_STRUCT_NOTIFY */
+
+#if OPT_SESSION_MGT
+int ice_fd = -1;
+#endif
+
+#ifdef USE_IGNORE_RC
+int ignore_unused;
+#endif
