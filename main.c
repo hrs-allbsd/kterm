@@ -211,7 +211,9 @@ static Bool IsPts = False;
 #undef FIOCLEX
 #undef FIONCLEX
 #define setpgrp2 setpgrp
+#ifndef USE_POSIX_TERMIOS
 #include <sgtty.h>
+#endif
 #include <sys/resource.h>
 #endif
 #ifdef sco
@@ -237,7 +239,7 @@ static Bool IsPts = False;
 #define HAS_UTMP_UT_HOST
 #endif
 #else /* } !SYSV { */			/* BSD systems */
-#ifndef linux
+#if !defined(linux) && !defined(USE_POSIX_TERMIOS)
 #include <sgtty.h>
 #endif
 #include <sys/resource.h>
@@ -1360,6 +1362,8 @@ char **argv;
 	d_tio.c_cc[VDISCARD] = CFLUSH;
 	d_tio.c_cc[VWERASE] = CWERASE;
 	d_tio.c_cc[VLNEXT] = CLNEXT;
+	d_tio.c_cc[VMIN] = 1;
+	d_tio.c_cc[VTIME] = 0;
 #endif /* } */
 #ifdef TIOCSLTC /* { */
         d_ltc.t_suspc = CSUSP;		/* t_suspc */
@@ -1408,6 +1412,8 @@ char **argv;
 	d_tio.c_cc[VQUIT] = CQUIT;		/* '^\'	*/
     	d_tio.c_cc[VEOF] = CEOF;		/* '^D'	*/
 	d_tio.c_cc[VEOL] = CEOL;		/* '^@'	*/
+	d_tio.c_cc[VMIN] = 1;
+	d_tio.c_cc[VTIME] = 0;
 #ifdef VSWTCH
 	d_tio.c_cc[VSWTCH] = CSWTCH;            /* usually '^Z' */
 #endif
