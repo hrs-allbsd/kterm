@@ -322,6 +322,10 @@ extern struct utmp *getutid __((struct utmp *_Id));
 int	Ptyfd;
 #endif /* PUCC_PTYD */
 
+#ifdef __FreeBSD__
+#include <libutil.h>	/* openpty() */
+#endif
+
 #ifdef sequent
 #define USE_GET_PSEUDOTTY
 #endif
@@ -1982,7 +1986,7 @@ char *name;
 get_pty (pty)
     int *pty;
 {
-#ifdef __osf__
+#if defined(__osf__) || defined(__FreeBSD__)
     int tty;
     return (openpty(pty, &tty, ttydev, NULL, NULL));
 #endif
