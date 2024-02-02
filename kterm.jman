@@ -16,35 +16,35 @@
 .\" "
 .TH KTERM 1 "12 July 1996" "X Version 11"
 .SH NAME
-kterm \- $BB?9q8lMQ(B X $BC<Kv%(%_%e%l!<%?(B
+kterm \- 多国語用 X 端末エミュレータ
 .SH SYNOPSIS
 .B kterm
 [-\fItoolkitoption\fP ...] [-\fIxtermoption\fP ...] [-option ...]
 .SH DESCRIPTION
-\fIkterm\fP $B$O!"(B\fIxterm\fP(1) $B$r$b$H$K$7$?!"B?9q8lMQC<Kv$N%(%_%e%l!<(B
-$B%?$G$9!#(B\fIxterm\fP $B$H$N<g$J0c$$$O!"(BISO2022 $B$GId9f2=$5$l$?B?9q8l%F%-%9(B
-$B%H$r07$&$3$H$,$G$-!"?'$NIU$$$?%F%-%9%H$rI=<($G$-!"%9%F!<%?%9%i%$%s5!G=(B
-$B$r;}$D$H$$$&E@$G$9!#B?9q8l%F%-%9%H$NF~NO$K$O!"(BX Input Method (XIM) $B%W(B
-$B%m%H%3%k$H!"(Bkinput2 $B%W%m%H%3%k$NN>J}$rMxMQ$9$k$3$H$,$G$-$^$9!#>\$7$/$O(B 
-USING XIM $B$H(B USING KINPUT2 $B$N@a$r;2>H$7$F$/$@$5$$!#(B
+\fIkterm\fP は、\fIxterm\fP(1) をもとにした、多国語用端末のエミュレー
+タです。\fIxterm\fP との主な違いは、ISO2022 で符号化された多国語テキス
+トを扱うことができ、色の付いたテキストを表示でき、ステータスライン機能
+を持つという点です。多国語テキストの入力には、X Input Method (XIM) プ
+ロトコルと、kinput2 プロトコルの両方を利用することができます。詳しくは 
+USING XIM と USING KINPUT2 の節を参照してください。
 .PP
 .SH OPTIONS
-\fIkterm\fP $B$O!"(B\fIxterm\fP(1) $B$N%3%^%s%I%i%$%s%*%W%7%g%s$K2C$(!"(B
-$B0J2<$N%*%W%7%g%s$r<u$1IU$1$^$9(B:
+\fIkterm\fP は、\fIxterm\fP(1) のコマンドラインオプションに加え、
+以下のオプションを受け付けます:
 .TP 8
 .BI \-dfl
-\fIkterm\fP $B$,%U%)%s%H$rF0E*$K(B($BMW5a$,$"$C$?$H$-$K(B)$B%m!<%I$9$k$3$H$r;X<((B
-$B$7$^$9!#Bg$-$J%U%)%s%H$r%m!<%I$9$k:]$K!"(B\fIkterm\fP $B$d(B X $B%5!<%P$,0l=V(B
-$B;_$^$C$F$7$^$&$3$H$,$"$j$^$9!#(B
+\fIkterm\fP がフォントを動的に(要求があったときに)ロードすることを指示
+します。大きなフォントをロードする際に、\fIkterm\fP や X サーバが一瞬
+止まってしまうことがあります。
 .TP 8
 .BI \+dfl
-\fIkterm\fP $B$,%U%)%s%H$r$"$i$+$8$a%m!<%I$7$F$*$/$3$H$r;X<($7$^$9!#(B
+\fIkterm\fP がフォントをあらかじめロードしておくことを指示します。
 .TP 8
 .BI \-fl " fontlist"
-$B%U%)%s%H$N%j%9%H$r;XDj$7$^$9!#(B\fIfontlist\fP $B$OG$0U$N%o%$%k%I%+!<%I$r(B
-$B4^$`(B XLFD $B$r!"%+%s%^$G6h@Z$C$FJB$Y$?%j%9%H$G$9!#(B\fIkterm\fP $B$O!"I,MW$J(B
-$BJ8;z%;%C%H$r;}$D%U%)%s%H$r$3$N%j%9%H$+$iA*Br$7$^$9!#K\%j%j!<%9$G$O0J2<(B
-$B$NJ8;z%;%C%H$r;HMQ$9$k$3$H$,$"$j$^$9(B:
+フォントのリストを指定します。\fIfontlist\fP は任意のワイルドカードを
+含む XLFD を、カンマで区切って並べたリストです。\fIkterm\fP は、必要な
+文字セットを持つフォントをこのリストから選択します。本リリースでは以下
+の文字セットを使用することがあります:
 .br
 "iso8859-1",
 .br
@@ -108,90 +108,90 @@ USING XIM $B$H(B USING KINPUT2 $B$N@a$r;2>H$7$F$/$@$5$$!#(B
 .br
 "cns11643.1992-6",
 .br
-"cns11643.1992-7"$B!#(B
+"cns11643.1992-7"。
 .TP 8
 .BI \-fn " iso8859/1-font"
-Latin-1 (ASCII $B$r4^$`(B) $B$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k!"DL>o$N(B($B%\!<%k%I(B
-$B$G$J$$(B) ISO8859/1 $B$N%U%)%s%H$r;XDj$7$^$9!#;XDj$5$l$F$$$J$$;~$O!"(B
-\fIfontlist\fP $B$NCf$+$iC5$7$^$9!#(B
+Latin-1 (ASCII を含む) のテキストを表示する時に用いる、通常の(ボールド
+でない) ISO8859/1 のフォントを指定します。指定されていない時は、
+\fIfontlist\fP の中から探します。
 .TP 8
 .BI \-fr " roman-kana-font"
-$BDL>o$N(B JISX0201 $B$N%U%)%s%H$r;XDj$7$^$9!#$3$N%U%)%s%H$O!"(BISO8859/1 $B$N%U%)(B
-$B%s%H$HF1$89b$5$HI}$r;}$C$F$$$J$1$l$P$J$j$^$;$s!#;XDj$5$l$F$$$J$$;~$O!"(B
-\fIfontlist\fP $B$NCf$+$iC5$7$^$9!#(B
+通常の JISX0201 のフォントを指定します。このフォントは、ISO8859/1 のフォ
+ントと同じ高さと幅を持っていなければなりません。指定されていない時は、
+\fIfontlist\fP の中から探します。
 .TP 8
 .BI \-fkB " kanji-font"
-$B4A;z%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
-$BDL>o$N(B JISX0208-1983 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
-$B$3$N%U%)%s%H$O!"(BISO8859/1 $B$N%U%)%s%H$HF1$89b$5$G!"(B
-2$BG\$NI}$r;}$C$F$$$J$1$l$P$J$j$^$;$s!#(B
-$B;XDj$5$l$F$$$J$$;~$O!"(B\fIfontlist\fP $B$NCf$+$iC5$7$^(B
-$B$9!#(B
+漢字テキストを表示する時に用いる
+通常の JISX0208-1983 のフォントを指定します。
+このフォントは、ISO8859/1 のフォントと同じ高さで、
+2倍の幅を持っていなければなりません。
+指定されていない時は、\fIfontlist\fP の中から探しま
+す。
 .BI \-fk@ " old-kanji-font"
-$B4A;z$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
-JISC6226-1978 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
-$B$3$N%U%)%s%H$O!"(BISO8859/1 $B$N%U%)%s%H$HF1$89b$5$G!"(B
-2$BG\$NI}$r;}$C$F$$$J$1$l$P$J$j$^$;$s!#(B
-$B;XDj$5$l$F$$$J$$;~$O!"(B\fIfontlist\fP $B$NCf$+$iC5$7$^$9!#(B
+漢字のテキストを表示する時に用いる
+JISC6226-1978 のフォントを指定します。
+このフォントは、ISO8859/1 のフォントと同じ高さで、
+2倍の幅を持っていなければなりません。
+指定されていない時は、\fIfontlist\fP の中から探します。
 .TP 8
 .BI \-fk@B " 1990-kanji-font"
-$B4A;z$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
-$BDL>o$N(B JISX0208-1990 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
-$B$3$N%U%)%s%H$O!"(BISO8859/1 $B$N%U%)%s%H$HF1$89b$5$G!"(B
-2$BG\$NI}$r;}$C$F$$$J$1$l$P$J$j$^$;$s!#(B
-$B;XDj$5$l$F$$$J$$;~$O!"(B\fIfontlist\fP $B$NCf$+$iC5$7$^$9!#(B
+漢字のテキストを表示する時に用いる
+通常の JISX0208-1990 のフォントを指定します。
+このフォントは、ISO8859/1 のフォントと同じ高さで、
+2倍の幅を持っていなければなりません。
+指定されていない時は、\fIfontlist\fP の中から探します。
 .TP 8
 .BI \-fkD " hojo-kanji-font"
-$BJd=u4A;z$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
-JISX0212-1990 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
+補助漢字のテキストを表示する時に用いる
+JISX0212-1990 のフォントを指定します。
 .TP 8
 .BI \-fkO " extended-kanji-font-1"
-$B3HD%4A;z$N0lLL(B($BBh;0?e=`(B)$B$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
-JISX0213-2000-1 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
+拡張漢字の一面(第三水準)のテキストを表示する時に用いる
+JISX0213-2000-1 のフォントを指定します。
 .TP 8
 .BI \-fkP " extended-kanji-font-2"
-$B3HD%4A;z$NFsLL(B($BBh;M?e=`(B)$B$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
-JISX0213-2000-1 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
+拡張漢字の二面(第四水準)のテキストを表示する時に用いる
+JISX0213-2000-1 のフォントを指定します。
 .TP 8
 .BI \-fkQ " extended-2004-kanji-font-1"
-$B3HD%4A;z(B2004$BG/HG$N0lLL(B($BBh;0?e=`(B)$B$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
-JISX0213-2004-1 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
+拡張漢字2004年版の一面(第三水準)のテキストを表示する時に用いる
+JISX0213-2004-1 のフォントを指定します。
 .TP 8
 .BI \-fkC " hangl-font"
-$B%O%s%0%kJ8;z$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
-KSC5601-1987 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
+ハングル文字のテキストを表示する時に用いる
+KSC5601-1987 のフォントを指定します。
 .TP 8
 .BI \-fkA " hanzi-font"
-$BCf9q8l4A;z$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
-GB2312-1980 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
+中国語漢字のテキストを表示する時に用いる
+GB2312-1980 のフォントを指定します。
 .TP 8
 .BI \-fkG " cns-font-1"
-$BBfOQ4A;z(B($B0lLL(B)$B$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
-CNS11643-1992-1 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
+台湾漢字(一面)のテキストを表示する時に用いる
+CNS11643-1992-1 のフォントを指定します。
 .TP 8
 .BI \-fkH " cns-font-2"
-$BBfOQ4A;z(B($B%KLL(B)$B$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
-CNS11643-1992-2 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
+台湾漢字(ニ面)のテキストを表示する時に用いる
+CNS11643-1992-2 のフォントを指定します。
 .TP 8
 .BI \-fkI " cns-font-3"
-$BBfOQ4A;z(B($B;0LL(B)$B$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
-CNS11643-1992-3 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
+台湾漢字(三面)のテキストを表示する時に用いる
+CNS11643-1992-3 のフォントを指定します。
 .TP 8
 .BI \-fkJ " cns-font-4"
-$BBfOQ4A;z(B($B;MLL(B)$B$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
-CNS11643-1992-4 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
+台湾漢字(四面)のテキストを表示する時に用いる
+CNS11643-1992-4 のフォントを指定します。
 .TP 8
 .BI \-fkK " cns-font-5"
-$BBfOQ4A;z(B($B8^LL(B)$B$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
-CNS11643-1992-5 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
+台湾漢字(五面)のテキストを表示する時に用いる
+CNS11643-1992-5 のフォントを指定します。
 .TP 8
 .BI \-fkL " cns-font-6"
-$BBfOQ4A;z(B($BO;LL(B)$B$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
-CNS11643-1992-6 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
+台湾漢字(六面)のテキストを表示する時に用いる
+CNS11643-1992-6 のフォントを指定します。
 .TP 8
 .BI \-fkM " cns-font-7"
-$BBfOQ4A;z(B($B<7LL(B)$B$N%F%-%9%H$rI=<($9$k;~$KMQ$$$k(B
-CNS11643-1992-7 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
+台湾漢字(七面)のテキストを表示する時に用いる
+CNS11643-1992-7 のフォントを指定します。
 .TP
 .BI \-flb " bold-fontlist"
 .TP 8
@@ -230,226 +230,226 @@ CNS11643-1992-7 $B$N%U%)%s%H$r;XDj$7$^$9!#(B
 .BI \-fkbL " cns-bold-font-6"
 .TP 8
 .BI \-fkbM " cns-bold-font-7"
-$B%\!<%k%I%U%)%s%H$r;XDj$7$^$9!#(B
+ボールドフォントを指定します。
 .TP 8
 .BI \-lsp " dots"
-$B$3$N%*%W%7%g%s$O3F9T4V$KA^F~$9$k%9%Z!<%9$N%I%C%H?t$r;XDj$7$^$9!#(B
+このオプションは各行間に挿入するスペースのドット数を指定します。
 .TP 8
 .BI \-ka
-\fIkterm\fP $B$,(B X $B%5!<%P$H$N%=%1%C%H@\B3$K(B KEEPALIVE $B%*%W%7%g%s$rMQ$$$k(B
-$B$3$H$r;X<($7$^$9!#%5!<%P$,EE8;$r$7$P$7$P@Z$k(B X $BC<Kv$G$"$k$h$&$J;~$KM-(B
-$BMQ$G$9!#(B
+\fIkterm\fP が X サーバとのソケット接続に KEEPALIVE オプションを用いる
+ことを指示します。サーバが電源をしばしば切る X 端末であるような時に有
+用です。
 .TP 8
 .BI \+ka
-\fIkterm\fP $B$,(B X $B%5!<%P$H$N%=%1%C%H@\B3$K(B KEEPALIVE $B%*%W%7%g%s$rMQ$$$J(B
-$B$$$3$H$r;X<($7$^$9!#(B
+\fIkterm\fP が X サーバとのソケット接続に KEEPALIVE オプションを用いな
+いことを指示します。
 .TP 8
 .BI \-km " kanji-mode"
-pty $B$H$d$j$H$j$5$l$k4A;z%3!<%I$r;XDj$7$^$9!#4A;z%b!<%I$,(B ``euc'' $B$N>l(B
-$B9g!"F~=PNO$OF|K\8l(B EUC $B$G$"$k$H2>Dj$7$^$9!#(B``sjis'' $B$N>l9g!"(BShift_JIS 
-$B%3!<%I(B($B%^%$%/%m%=%U%H4A;z%3!<%I(B)$B$G$"$k$H2>Dj$7$^$9!#4A;z%b!<%I$,(B
-``utf-8'' $B$N>l9g!"F~=PNO$O(B UTF-8 $B$G$"$k$H2>Dj$7$^$9!#(B
+pty とやりとりされる漢字コードを指定します。漢字モードが ``euc'' の場
+合、入出力は日本語 EUC であると仮定します。``sjis'' の場合、Shift_JIS 
+コード(マイクロソフト漢字コード)であると仮定します。漢字モードが
+``utf-8'' の場合、入出力は UTF-8 であると仮定します。
 .TP 8
 .BI \-sn
-$B%G%U%)%k%H$G$O!"%9%F!<%?%9%i%$%s$O(B($B%&%$%s%I%&$NB>$NItJ,$KBP$7$FAjBPE*(B
-$B$K(B)$BH?E>$7$^$9!#$3$N%*%W%7%g%s$O%9%F!<%?%9%i%$%s$rH?E>$7$J$/$7$^$9(B($B$7$+(B
-$B$7!"H"$G0O$^$l$^$9(B)$B!#(B
+デフォルトでは、ステータスラインは(ウインドウの他の部分に対して相対的
+に)反転します。このオプションはステータスラインを反転しなくします(しか
+し、箱で囲まれます)。
 .TP 8
 .BI \+sn
-$B$3$N%*%W%7%g%s$O%9%F!<%?%9%i%$%s$rH?E>$7$^$9!#(B
+このオプションはステータスラインを反転します。
 .TP 8
 .BI \-st
-$B%9%F!<%?%9%i%$%s$,%9%?!<%H;~$KI=<($5$l$k$h$&$K$7$^$9!#(B
+ステータスラインがスタート時に表示されるようにします。
 .TP 8
 .BI \+st
-$B%9%F!<%?%9%i%$%s$,%9%?!<%H;~$KI=<($5$l$J$$$h$&$K$7$^$9!#(B
+ステータスラインがスタート時に表示されないようにします。
 .TP 8
 .BI \-version
-$BC1$K(B \fIkterm\fP $B$N%P!<%8%g%s$rI=<($7$^$9!#(B
+単に \fIkterm\fP のバージョンを表示します。
 .TP 8
 .BI \-xim
-\fIkterm\fP $B$N5/F0;~$K(B IM $B$r%*!<%W%s(B($B$7$h$&$H(B)$B$9$k$3$H$r;X<($7$^$9!#E,(B
-$B@Z$J(B IM $B%5!<%P$,Av$C$F$$$J$$>l9g$O!"(B\fIkterm\fP $B$O$=$l$rBT$D$3$H$O$J$/!"(B
-$B%5!<%P$,MxMQ2DG=$K$J$C$F$+$i@\B3$r9T$$$^$9!#(B
+\fIkterm\fP の起動時に IM をオープン(しようと)することを指示します。適
+切な IM サーバが走っていない場合は、\fIkterm\fP はそれを待つことはなく、
+サーバが利用可能になってから接続を行います。
 .TP 8
 .BI \+xim
-\fIkterm\fP $B$,5/F0;~$K(B IM $B$r%*!<%W%s$7$J$$$3$H$r;X<($7$^$9!#(B
+\fIkterm\fP が起動時に IM をオープンしないことを指示します。
 .SH RESOURCES
-$B$3$N%W%m%0%i%`$O!"(B\fIxterm\fP $B$N$9$Y$F$N%j%=!<%9$HF1MM$K!"0J2<$N(B 
-\fIvt100\fP $B%&%#%8%'%C%HMQ%j%=!<%9$b2r<a$7$^$9!#(B
+このプログラムは、\fIxterm\fP のすべてのリソースと同様に、以下の 
+\fIvt100\fP ウィジェット用リソースも解釈します。
 .TP 8
 .B "dynamicFontLoad (\fPclass\fB DynamicFontLoad)"
-\fIkterm\fP $B$,%U%)%s%H$rF0E*$K%m!<%I$9$k$+$I$&$+$r;XDj$7$^$9!#(B
-$B%G%U%)%k%H$O(B ``true'' $B$G$9!#(B
+\fIkterm\fP がフォントを動的にロードするかどうかを指定します。
+デフォルトは ``true'' です。
 .TP 8
 .B "fontList (\fPclass\fB FontList)"
-$B%U%)%s%HL>$N%j%9%H$r;XDj$7$^$9!#%G%U%)%k%H$O(B 
+フォント名のリストを指定します。デフォルトは 
 ``-*-fixed-medium-r-normal--14-*,
 -*-gothic-medium-r-normal--14-*,
--*-mincho-medium-r-normal--14-*'' $B$G$9!#(B
+-*-mincho-medium-r-normal--14-*'' です。
 .TP 8
 .B "boldFontList (\fPclass\fB FontList)"
-$B%\!<%k%I%U%)%s%HL>$N%j%9%H$r;XDj$7$^$9!#%G%U%)%k%H$G$O;XDj$7$^$;$s!#(B
+ボールドフォント名のリストを指定します。デフォルトでは指定しません。
 .TP 8
 .B "font (\fPclass\fB Font)"
-Latin-1 $B$N%U%)%s%HL>$r;XDj$7$^$9!#%G%U%)%k%H$G$O;XDj$7$^$;$s!#(B
+Latin-1 のフォント名を指定します。デフォルトでは指定しません。
 .TP 8
 .B "boldFont (\fPclass\fB Font)"
-Latin-1 $B$N%\!<%k%I%U%)%s%HL>$r;XDj$7$^$9!#%G%U%)%k%H$G$O;XDj$7$^$;$s!#(B
+Latin-1 のボールドフォント名を指定します。デフォルトでは指定しません。
 .TP 8
 .B "romanKanaFont (\fPclass\fB RomanKanaFont)"
-JIS-Roman $B$HJR2>L>$N%U%)%s%HL>$r;XDj$7$^$9!#%G%U%)%k%H$G$O;XDj$7$^$;$s!#(B
+JIS-Roman と片仮名のフォント名を指定します。デフォルトでは指定しません。
 .TP 8
 .B "romanKanaBoldFont (\fPclass\fB RomanKanaFont)"
-JIS-Roman $B$HJR2>L>$N%\!<%k%I%U%)%s%HL>$r;XDj$7$^$9!#%G%U%)%k%H$G$O;XDj$7$^$;$s!#(B
+JIS-Roman と片仮名のボールドフォント名を指定します。デフォルトでは指定しません。
 .TP 8
 .B "kanjiFont (\fPclass\fB KanjiFont)"
-$B4A;z$N%U%)%s%HL>$r;XDj$7$^$9!#%G%U%)%k%H$G$O;XDj$7$^$;$s!#(B
+漢字のフォント名を指定します。デフォルトでは指定しません。
 .TP 8
 .B "kanjiBoldFont (\fPclass\fB KanjiFont)"
-$B4A;z$N%\!<%k%I%U%)%s%HL>$r;XDj$7$^$9!#%G%U%)%k%H$G$O;XDj$7$^$;$s!#(B
+漢字のボールドフォント名を指定します。デフォルトでは指定しません。
 .TP 8
 .B "kanjiMode (\fPclass\fB KanjiMode)"
-pty $B$H$d$j$H$j$9$k4A;z%3!<%I$r;XDj$7$^$9!#%G%U%)%k%H$O(B ``jis'' $B$G$9!#(B
+pty とやりとりする漢字コードを指定します。デフォルトは ``jis'' です。
 .TP 8
 .B "lineSpace (\fPclass\fB LineSpace)"
-$B3F9T4V$KA^F~$9$k%9%Z!<%9NL$r;XDj$7$^$9!#%G%U%)%k%H$O(B ``0'' $B$G$9!#(B
+各行間に挿入するスペース量を指定します。デフォルトは ``0'' です。
 .TP 8
 .B "keepAlive (\fPclass\fB KeepAlive)"
-\fIkterm\fP $B$,(B X $B%5!<%P$H$N%=%1%C%H@\B3$K(B
-KEEPALIVE $B%*%W%7%g%s$rMQ$$$k$+$I$&$+;XDj$7$^$9!#(B
-$B%G%U%)%k%H$O(B ``false'' $B$G$9!#(B
+\fIkterm\fP が X サーバとのソケット接続に
+KEEPALIVE オプションを用いるかどうか指定します。
+デフォルトは ``false'' です。
 .TP 8
 .B "statusLine (\fPclass\fB StatusLine)"
-$B%9%F!<%?%9%i%$%s$r%9%?!<%H;~$KI=<($7$^$9!#%G%U%)%k%H$O(B ``false'' $B$G$9!#(B
+ステータスラインをスタート時に表示します。デフォルトは ``false'' です。
 .TP 8
 .B "statusNormal (\fPclass\fB StatusNormal)"
-$B%9%F!<%?%9%i%$%s$,H?E>$7$J$$$3$H$r;XDj$7$^$9!#%G%U%)%k%H$O(B ``false'' $B$G$9!#(B
+ステータスラインが反転しないことを指定します。デフォルトは ``false'' です。
 .TP 8
 .B "forwardKeyEvent (\fPclass\fB ForwardKeyEvent)"
-false $B$@$HJQ49%5!<%P$K%-!<%$%Y%s%H$rAw$j$^$;$s!#$3$N>l9g!"%U%)!<%+%9$,(B 
-\fIkterm\fP $B$K$"$k$,%]%$%s%?$OB>$N%&%$%s%I%&>e$K$"$k;~$K$OJQ49%5!<%P$O(B
-$B%$%Y%s%H$r<u$1<h$k$3$H$,$G$-$^$;$s!#$=$NBe$o$jCY$$%M%C%H%o!<%/$G$OJQ49(B
-$B;~$N%l%9%]%s%9$,2~A1$5$l$k$3$H$,$"$j$^$9!#%G%U%)%k%H$O(B ``true'' $B$G$9!#(B
+false だと変換サーバにキーイベントを送りません。この場合、フォーカスが 
+\fIkterm\fP にあるがポインタは他のウインドウ上にある時には変換サーバは
+イベントを受け取ることができません。その代わり遅いネットワークでは変換
+時のレスポンスが改善されることがあります。デフォルトは ``true'' です。
 .TP 8
 .B "openIm (\fPclass\fB OpenIm)"
-\fIkterm\fP $B$N5/F0;~$K(B IM $B$r%*!<%W%s(B($B$7$h$&$H(B)$B$9$k$+$I$&$+$r;XDj$7$^$9!#(B
-$B%G%U%)%k%H$O(B ``false'' $B$G$9!#(B
+\fIkterm\fP の起動時に IM をオープン(しようと)するかどうかを指定します。
+デフォルトは ``false'' です。
 .TP 8
 .B "eucJPLocale (\fPclass\fB EucJPLocale)"
-$BF~NO%a%=%C%I$N%m%1!<%k$r!"%+%s%^$G6h@Z$C$?%j%9%H$N7A<0$G;XDj$7$^$9!#%G(B
-$B%U%)%k%H$O(B``ja_JP.eucJP,ja_JP.ujis,ja_JP.EUC,japanese.euc,
-Japanese-EUC,ja,japan'' $B$G$9!#>\$7$/$O(B USING XIM $B$N@a$r;2>H$7$F$/$@$5(B
-$B$$!#(B
+入力メソッドのロケールを、カンマで区切ったリストの形式で指定します。デ
+フォルトは``ja_JP.eucJP,ja_JP.ujis,ja_JP.EUC,japanese.euc,
+Japanese-EUC,ja,japan'' です。詳しくは USING XIM の節を参照してくださ
+い。
 .TP 8
 .B "inputMethod (\fPclass\fB InputMethod)"
-$BF~NO%a%=%C%I%b%G%#%U%!%$%"$r;XDj$7$^$9!#%G%U%)%k%H$G$O;XDj$7$^$;$s!#(B
-($B$3$l$O!"4D6-JQ?t(B XMODIFIERS $B$r;HMQ$9$k$H$$$&0UL#$G$9(B)
+入力メソッドモディファイアを指定します。デフォルトでは指定しません。
+(これは、環境変数 XMODIFIERS を使用するという意味です)
 .TP 8
 .B "preeditType (\fPclass\fB PreeditType)"
-XIM $B%W%m%H%3%k$GMQ$$$kF~NO%9%?%$%k$r!"%+%s%^$G6h@Z$C$?%j%9%H$N7A<0$G;X(B
-$BDj$7$^$9!#8=:_$O(B ``OverTheSpot'' $B$H(B ``Root'' $B$,%5%]!<%H$5$l$F$$$^$9!#(B
-$B%G%U%)%k%H$O(B ``OverTheSpot,Root'' $B$G$9!#(B
+XIM プロトコルで用いる入力スタイルを、カンマで区切ったリストの形式で指
+定します。現在は ``OverTheSpot'' と ``Root'' がサポートされています。
+デフォルトは ``OverTheSpot,Root'' です。
 .SH ACTIONS
-\fIvt100\fP $B$N%H%i%s%9%l!<%7%g%s%j%=!<%9Fb$GMxMQ$G$-$k%"%/%7%g%s$,0J2<(B
-$B$N$h$&$KDI2C$5$l$F$$$^$9(B:
+\fIvt100\fP のトランスレーションリソース内で利用できるアクションが以下
+のように追加されています:
 .TP 8
 .B "open-im([\fIinput-method\fP])"
-$B$3$N%"%/%7%g%s$O!";XDj$5$l$?F~NO%a%=%C%I%b%G%#%U%!%$%"$N(B IM $B$r%*!<%W%s(B
-($B$7$h$&$H(B)$B$7$^$9!#$b$7(B \fIinput-method\fP $B$,>JN,$5$l$l$P!":G8e$K;XDj$5(B
-$B$l$?%b%G%#%U%!%$%"$,$=$N$^$^;HMQ$5$l$^$9!#$b$7(B \fIinput-method\fP $B$,%-!<(B
-$B%o!<%I(B XMODIFIERS $B$J$i$P!"4D6-JQ?t(B XMODIFIERS $B$,;HMQ$5$l$^$9!#(B
+このアクションは、指定された入力メソッドモディファイアの IM をオープン
+(しようと)します。もし \fIinput-method\fP が省略されれば、最後に指定さ
+れたモディファイアがそのまま使用されます。もし \fIinput-method\fP がキー
+ワード XMODIFIERS ならば、環境変数 XMODIFIERS が使用されます。
 .TP 8
 .B "close-im()"
-$B$3$N%"%/%7%g%s$O(B IM $B$r%/%m!<%:$7$^$9!#(B
+このアクションは IM をクローズします。
 .TP 8
 .B "begin-conversion(\fIconversion-atom\fP)"
-$B$3$N%"%/%7%g%s$O!"(Bkinput2 $B%W%m%H%3%k$rMQ$$$F!"%F%-%9%HF~NO$N$?$a$NJQ49(B
-$B$r3+;O$7$^$9!#F|K\8lJQ49$N$?$a$N(B \fIconversion-atom\fP $B$O(B
-``_JAPANESE_CONVERSION'' $B$G$9!#(B
+このアクションは、kinput2 プロトコルを用いて、テキスト入力のための変換
+を開始します。日本語変換のための \fIconversion-atom\fP は
+``_JAPANESE_CONVERSION'' です。
 .SH TERMCAP
-\fIkterm\fP $B$GMxMQ$G$-$k(B \fItermcap\fP(5) $B%(%s%H%j$K$O!"(B``kterm'',
-``xterm'', ``vt102'', ``vt100'' $B$*$h$S(B ``ansi'' $B$,$"$j$^$9!#(B
+\fIkterm\fP で利用できる \fItermcap\fP(5) エントリには、``kterm'',
+``xterm'', ``vt102'', ``vt100'' および ``ansi'' があります。
 .SH "USING XIM"
-\fIkterm\fP $B$O!"$^$:9q:]4D6-(B($B%m%1!<%k(B)$B$r!"(B\fIvt100\fP $B%j%=!<%9(B 
-"eucJPLocale" $B$rMQ$$$F@_Dj$7$^$9!#4D6-JQ?t(B LANG $B$OL5;k$5$l$^$9!#$3$l$O(B 
-\fIkterm\fP $B$,F|K\8l(B EUC $B$rFbItF~NO%3!<%I$H$7$FMQ$$$F$$$k$?$a$G$9!#$b(B
-$B$7!"$*;H$$$N%7%9%F%`$,!"%G%U%)%k%H$GMQ0U$5$l$F$$$k%m%1!<%kL>$r%5%]!<%H(B
-$B$7$F$$$J$$>l9g$O!"(Bapp-defaults $B%U%!%$%k$KE,@Z$K@_Dj$7$F$/$@$5$$!#$=$N(B
-$B8e(B \fIkterm\fP $B$O!"%m%1!<%k%b%G%#%U%!%$%"$r!"%j%=!<%9(B "inputMethod" $B$^(B
-$B$?$O4D6-JQ?t(B XMODIFIERS $B$K=>$C$F@_Dj$7$^$9!#(B
+\fIkterm\fP は、まず国際環境(ロケール)を、\fIvt100\fP リソース 
+"eucJPLocale" を用いて設定します。環境変数 LANG は無視されます。これは 
+\fIkterm\fP が日本語 EUC を内部入力コードとして用いているためです。も
+し、お使いのシステムが、デフォルトで用意されているロケール名をサポート
+していない場合は、app-defaults ファイルに適切に設定してください。その
+後 \fIkterm\fP は、ロケールモディファイアを、リソース "inputMethod" ま
+たは環境変数 XMODIFIERS に従って設定します。
 .PP
-\fIkterm\fP $B$,!"(B"-xim" $B%*%W%7%g%s$G5/F0$5$l$?$j!"(BvtMenu $BFb$N(B "Open
-Input Method" $B$,A*Br$5$l$k$H!"(B\fIkterm\fP $B$OC1$K(B IM $B%5!<%P$N5/F0$rCN$i(B
-$B$;$k$?$a$N%3!<%k%P%C%/$rEPO?$9$k$3$H$7$+$7$^$;$s!#$3$N;~E@$GE,@Z$J%5!<(B
-$B%P$,Av$C$F$$$?$j!"8e$+$iMxMQ2DG=$K$J$k$H(B \fIkterm\fP $B$O$=$N%5!<%P$K@\(B
-$BB3$7$^$9!#JQ49$N3+;O$O!"(BIM $B%5!<%P$N@_Dj$K0MB8$7$^$9!#(B
+\fIkterm\fP が、"-xim" オプションで起動されたり、vtMenu 内の "Open
+Input Method" が選択されると、\fIkterm\fP は単に IM サーバの起動を知ら
+せるためのコールバックを登録することしかしません。この時点で適切なサー
+バが走っていたり、後から利用可能になると \fIkterm\fP はそのサーバに接
+続します。変換の開始は、IM サーバの設定に依存します。
 .PP
-$B$b$7!"(B\fIkterm\fP $B$,(B kinput2 $B%W%m%H%3%k$N%5!<%P$H@\B3$7$F$$$k$H!"(BIM $B$O(B
-$B%*!<%W%s$G$-$^$;$s!#(B
+もし、\fIkterm\fP が kinput2 プロトコルのサーバと接続していると、IM は
+オープンできません。
 .PP
-$B$5$i$K>\$7$$>pJs(B($B%F%-%9%H$NF~NO(B/$BJQ49(B/$B=$@5J}K!$J$I(B)$B$OJQ49%5!<%P$N%I%-%e(B
-$B%a%s%H(B(\fIkinput2\fP(1))$B$r;2>H$7$F2<$5$$!#(B
+さらに詳しい情報(テキストの入力/変換/修正方法など)は変換サーバのドキュ
+メント(\fIkinput2\fP(1))を参照して下さい。
 .sp
-.B $BF|K\8l0J30$N8@8l(B
+.B 日本語以外の言語
 .br
-$BF|K\8l0J30$N8@8l$rF~NO$9$k$K$O!"(B\fIvt100\fP $B%j%=!<%9(B "eucJPLocale" $B$r(B
-$BI,MW$J%m%1!<%kL>$K@_Dj$7!"4A;z%b!<%I$r(B("-km euc" $B%*%W%7%g%s!"(B
-"*vt100.kanjiMode: euc" $B%j%=!<%9!"$"$k$$$O(B vtMenu $B$N(B "Japanese EUC
-Mode" $B%(%s%H%j$rMQ$$$F(B)$BF|K\8l(B EUC $B$K@_Dj$7$F$/$@$5$$!#F|K\8l(B EUC $B%b!<(B
-$B%I$G$O!"(BIM $B$+$iF~NO$5$l$?J8;z$O!"=$@5$5$l$:$K(B pty $B$KEO$5$l$k$N$G!"$3$N(B
-$BJ}K!$O$I$N$h$&$J%m%1!<%k$KBP$7$F$bF0:n$9$k$O$:$G$9!#$?$@$7!"$3$N5!9=$O!"(B
-$B>-MhJQ99$5$l$k2DG=@-$,$"$j$^$9!#(B
+日本語以外の言語を入力するには、\fIvt100\fP リソース "eucJPLocale" を
+必要なロケール名に設定し、漢字モードを("-km euc" オプション、
+"*vt100.kanjiMode: euc" リソース、あるいは vtMenu の "Japanese EUC
+Mode" エントリを用いて)日本語 EUC に設定してください。日本語 EUC モー
+ドでは、IM から入力された文字は、修正されずに pty に渡されるので、この
+方法はどのようなロケールに対しても動作するはずです。ただし、この機構は、
+将来変更される可能性があります。
 .sp
-.B $BCm0U(B
+.B 注意
 .br
-$B@\B3$7$F$$$k(B IM $B%5!<%P$,$"$k%?%$%_%s%0$G;`$L$H(B \fIkterm\fP $B$,%O%s%0$7(B
-$B$F$7$^$&$3$H$,$"$j$^$9!#$"$k(B \fIkterm\fP $B>e$G$=$l$K@\B3$7$F$$$k%5!<%P!"(B
-$B$*$h$S!"(B\fIkterm\fP $B$H@\B3$r3NN)$7$h$&$H$7$F$$$k%5!<%P$r;&$7$F$O$$$1$^(B
-$B$;$s!#(BIM $B%5!<%P$r;&$9$H$-$O!"$I$N(B \fIkterm\fP $B$b$=$N%5!<%P$K@\B3$7$F$$(B
-$B$J$$$3$H$rI,$:3N$+$a$F$/$@$5$$!#(B
+接続している IM サーバがあるタイミングで死ぬと \fIkterm\fP がハングし
+てしまうことがあります。ある \fIkterm\fP 上でそれに接続しているサーバ、
+および、\fIkterm\fP と接続を確立しようとしているサーバを殺してはいけま
+せん。IM サーバを殺すときは、どの \fIkterm\fP もそのサーバに接続してい
+ないことを必ず確かめてください。
 .sp
-.B $B$*CN$i$;(B
+.B お知らせ
 .br
-\fIkterm\fP $B$O!"(BX11R5 $B$K4p$E$/(B XIMP $B%W%m%H%3%k$rMQ$$$?%5!<%P$H$ODL?.$G(B
-$B$-$^$;$s!#(B
+\fIkterm\fP は、X11R5 に基づく XIMP プロトコルを用いたサーバとは通信で
+きません。
 .SH "USING KINPUT2"
-$B%G%U%)%k%H$G$O!"(Bcontrol-Kanji $B%-!<$r2!$9$H!"(Bkinput2 $B%W%m%H%3%k$rMQ$$$?(B
-$BF|K\8l%F%-%9%H$N$?$a$NJQ49$,;O$^$j$^$9!#(B\fIkinput2\fP(1) $B$J$I$NJQ49%5!<(B
-$B%P$O$=$l$^$G$KAv$i$;$F$"$kI,MW$,$"$j!"$G$J$1$l$P(B `Conversion Server
-not found' $B$H$$$&7Y9p%a%C%;!<%8$,8=$l$^$9!#B>$N8@8l$K$D$$$F$O!"$b$7%5!<(B
-$B%P$,MxMQ2DG=$J$i$P!"%H%i%s%9%l!<%7%g%s%F!<%V%k$rJQ99$9$k$3$H$K$h$C$F!"(B
-$BJQ49$r3+;O$9$k$?$a$N%-!<$r%P%$%s%I$9$k$3$H$,$G$-$^$9!#(B
+デフォルトでは、control-Kanji キーを押すと、kinput2 プロトコルを用いた
+日本語テキストのための変換が始まります。\fIkinput2\fP(1) などの変換サー
+バはそれまでに走らせてある必要があり、でなければ `Conversion Server
+not found' という警告メッセージが現れます。他の言語については、もしサー
+バが利用可能ならば、トランスレーションテーブルを変更することによって、
+変換を開始するためのキーをバインドすることができます。
 .PP
-IM $B$,%*!<%W%s$5$l(B($B$h$&$H$7(B)$B$F$$$k>l9g$O!"(Bkinput2 $B%W%m%H%3%k$rMQ$$$?JQ(B
-$B49$O3+;O$G$-$^$;$s!#(B
+IM がオープンされ(ようとし)ている場合は、kinput2 プロトコルを用いた変
+換は開始できません。
 .PP
-$B$5$i$K>\$7$$>pJs(B($B%F%-%9%H$NF~NO(B/$BJQ49(B/$B=$@5J}K!$J$I(B)$B$OJQ49%5!<%P$N%I%-%e(B
-$B%a%s%H(B(\fIkinput2\fP(1))$B$r;2>H$7$F2<$5$$!#(B
+さらに詳しい情報(テキストの入力/変換/修正方法など)は変換サーバのドキュ
+メント(\fIkinput2\fP(1))を参照して下さい。
 .SH "SEE ALSO"
 xterm(1), resize(1), X(1), kinput2(1), pty(4), tty(4)
 .br
 .I ``Xterm Control Sequences''
 .SH BUGS
-\fIkterm\fP $B$O(B2$B%P%$%HJ8;z$,(B1$B%P%$%HJ8;z$NFsG\$NI}$r;}$C$F$$$k$b$N$H2>Dj(B
-$B$7$^$9!#ITDjI}$N%U%)%s%H$O(B \fIxterm\fP $BF1MM07$&$3$H$,$G$-$^$;$s!#(B
+\fIkterm\fP は2バイト文字が1バイト文字の二倍の幅を持っているものと仮定
+します。不定幅のフォントは \fIxterm\fP 同様扱うことができません。
 .PP
-$BK\%P!<%8%g%s$G$O(B JIS $B%b!<%I$G4A;z$rF~NO$9$k:]!"(B``ESC $ B'' $B$r4A;zJ8;z(B
-$B%;%C%H$N3dEv$KMQ$$$^$9!#(B
+本バージョンでは JIS モードで漢字を入力する際、``ESC $ B'' を漢字文字
+セットの割当に用います。
 .SH NOTE
-$B$3$N(B kterm $B$K$O(B JIS X 0213:2000 $B$GDI2C$5$l$?Bh;0?e=`!"Bh;M?e=`$N4A;z$r(B
-$B;HMQ$9$k$?$a$N%Q%C%A$,Ev$C$F$$$^$9!#(BJIS $B%b!<%I$N>l9g$K$O(B ``ESC $ ( O''
-$B$d(B ``ESC $ ( P'' $B$K$h$C$F(B JIS X 0213 $B$NJ8;z$r07$($^$9!#F|K\8l(B EUC $B%b!<%I(B
-$B$*$h$S(B SJIS $B%b!<%I$N>l9g$K$O(B JIS X 0208 $B$GL$Dj5A$NJ8;z$,8=$o$l$?>l9g$K(B
-$B$=$NJ8;z$N$_(B JIS X 0213 $B$NJ8;z$H$7$F07$$$^$9!#$^$?(B ``ESC $ ( Q'' $B$K(B
-$B$h$C$F(B JIS X 0213 $B$N(B 2004$BG/HG$NJ8;z$r07$&$3$H$,$G$-$^$9!#(B
+この kterm には JIS X 0213:2000 で追加された第三水準、第四水準の漢字を
+使用するためのパッチが当っています。JIS モードの場合には ``ESC $ ( O''
+や ``ESC $ ( P'' によって JIS X 0213 の文字を扱えます。日本語 EUC モード
+および SJIS モードの場合には JIS X 0208 で未定義の文字が現われた場合に
+その文字のみ JIS X 0213 の文字として扱います。また ``ESC $ ( Q'' に
+よって JIS X 0213 の 2004年版の文字を扱うことができます。
 .SH AUTHORS
-$B0J2<$r4^$`B?$/$N?M!9(B:
+以下を含む多くの人々:
 .sp
-$B:4Ln>!Li(B ($B3t<02q<REl<G(B),
-$BF~9>1QIW(B ($B%=%K!<3t<02q<R(B),
-$B2CF#O/(B ($BEl5~Bg3X(B),
-$BM-:BF;=U(B ($B3t<02q<R(B SRA),
-$B@PA>:,?.(B ($B3t<02q<R(B SRA),
-$BdFC+M5?M(B ($B2,;3Bg3X(B),
-$BIp@n?J(B ($BF|K\EE?.EEOC3t<02q<R(B)
+佐野勝也 (株式会社東芝),
+入江英夫 (ソニー株式会社),
+加藤朗 (東京大学),
+有座道春 (株式会社 SRA),
+石曽根信 (株式会社 SRA),
+籠谷裕人 (岡山大学),
+武川進 (日本電信電話株式会社)
