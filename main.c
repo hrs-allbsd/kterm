@@ -1714,15 +1714,18 @@ char **argv;
 		case 'e': case 'E': case 'x': case 'X':
 		    term->flags |= EUC_KANJI;
 		    update_eucmode();
+		    setenv("KTERM_KANJIMODE", "EUC", 1);
 		    break;
 		case 's': case 'S': case 'm': case 'M':
 		    term->flags |= SJIS_KANJI;
 		    update_sjismode();
+		    setenv("KTERM_KANJIMODE", "SJIS", 1);
 		    break;
 	        case 'u': case 'U':
 		    term->flags |= UTF8_KANJI;
 		    update_utf8mode();
 		    make_unicode_map();
+		    setenv("KTERM_KANJIMODE", "UTF-8", 1);
 		    break;
 		default:
 		    break;
