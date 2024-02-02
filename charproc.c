@@ -1979,6 +1979,12 @@ static void VTparse()
 			parsestate = groundtable;
 			break;
 
+		 case CASE_ELN:
+			/* ELN */
+			ClearRightN(screen, param[0] < 1 ? 1 : param[0]);
+			parsestate = groundtable;
+			break;
+
 		 case CASE_IL:
 			/* IL */
 			if((row = param[0]) < 1)
