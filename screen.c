@@ -46,8 +46,12 @@
 #include <sys/ptem.h>
 #endif
 
+#ifndef X_NOT_STDC_ENV
+#include <stdlib.h>
+#else
 extern Char *calloc(), *malloc(), *realloc();
 extern void free();
+#endif
 
 ScrnBuf Allocate (nrow, ncol, addr)
 /*

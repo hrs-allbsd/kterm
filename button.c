@@ -41,7 +41,11 @@ button.c	Handles button events in the terminal emulator.
 #include "error.h"
 #include "menu.h"
 
+#ifndef X_NOT_STDC_ENV
+#include <stdlib.h>
+#else
 extern char *malloc();
+#endif
 
 extern void DoSecureKeyboard();
 

@@ -103,8 +103,12 @@ extern jmp_buf VTend;
 extern XtAppContext app_con;
 extern Widget toplevel;
 extern void exit();
+#ifndef X_NOT_STDC_ENV
+#include <stdlib.h>	/* for malloc(3) */
+#else
 extern char *malloc();
 extern char *realloc();
+#endif
 extern fd_set Select_mask;
 extern fd_set X_mask;
 extern fd_set pty_mask;
