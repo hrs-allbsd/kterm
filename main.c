@@ -296,7 +296,7 @@ extern Time_t time ();
 #define ttyslot() 1
 #endif /* apollo */
 
-#ifdef SVR4
+#if defined(SVR4) || (defined(__FreeBSD__) && __FreeBSD_version >= 900007)
 #include <utmpx.h>
 #define setutent setutxent
 #define getutent getutxent
