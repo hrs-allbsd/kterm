@@ -1734,12 +1734,12 @@ char **argv;
 	        case 'u': case 'U':
 		    term->flags |= UTF8_KANJI;
 		    update_utf8mode();
-		    make_unicode_map();
 		    setenv("KTERM_KANJIMODE", "UTF-8", 1);
 		    break;
 		default:
 		    break;
 	    }
+	    make_unicode_map();
 	}
 #endif /* KTERM_KANJIMODE */
 
